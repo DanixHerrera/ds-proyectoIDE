@@ -12,9 +12,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("StudentIDE")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+46039f5d19e4b832d9efcd005ea7d68886c386aa")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cb262a85079a067b9a8ed4e6c352252d11204d83")]
 [assembly: System.Reflection.AssemblyProductAttribute("StudentIDE")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StudentIDE")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

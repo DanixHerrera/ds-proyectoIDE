@@ -26,16 +26,28 @@
             <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══════════════════════════════════════════ -->
-        <!-- FILA 0: Barra superior                      -->
-        <!-- Aquí irá el menú Archivo / Ver / Ejecutar   -->
-        <!-- y el botón "Entregar Tarea" (RF-22)          -->
-        <!-- ═══════════════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- FILA 0: Barra superior                                 -->
+        <!-- RF-11: Botón Guardar + atajo Ctrl+S                   -->
+        <!-- Aquí irán más acciones: Ejecutar (RF-12), Entregar (RF-22) -->
+        <!-- ═══════════════════════════════════════════════════════ -->
         <Border Grid.Row="0" Background="#2D2D2D">
-            <TextBlock Text="[Barra de menú y acciones — pendiente]"
-                       Foreground="Gray"
-                       VerticalAlignment="Center"
-                       Margin="10,0"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                <!-- Botón Guardar (RF-11) -->
+                <Button Content="💾 Guardar"
+                        Command="{Binding GuardarCommand}"
+                        Background="#3C3C3C"
+                        Foreground="White"
+                        BorderBrush="#555"
+                        Padding="10,4"
+                        Margin="0,0,8,0"
+                        Cursor="Hand"
+                        ToolTip="Guardar archivo (Ctrl+S)"/>
+                <!-- TODO RF-12: Botón Ejecutar -->
+                <!-- <Button Content="▶ Ejecutar" .../> -->
+                <!-- TODO RF-22: Botón Entregar Tarea -->
+                <!-- <Button Content="📤 Entregar Tarea" .../> -->
+            </StackPanel>
         </Border>
 
         <!-- ═══════════════════════════════════════════ -->
@@ -79,7 +91,9 @@
                     <RowDefinition Height="180"/>
                 </Grid.RowDefinitions>
 
-                <!-- Editor de código -->
+                <!-- Editor de código — RF-05 / RF-11 -->
+                <!-- Text enlazado a CodigoActual en el ViewModel (UpdateSourceTrigger=PropertyChanged -->
+                <!-- para que el ViewModel siempre tenga el contenido actualizado al guardar)          -->
                 <Border Grid.Row="0" Background="#1E1E1E">
                     <TextBox x:Name="CodeEditor"
                              Background="#1E1E1E"
@@ -94,7 +108,11 @@
                              Padding="10"
                              TextWrapping="NoWrap"
                              SpellCheck.IsEnabled="False"
+<<<<<<< HEAD:DesktopAppPrototipo_2/StudentIDE/Views/MainView.xaml
                              Text="# Bienvenido a StudentIDE&#x0a;# Abre o crea un archivo para comenzar"/>
+=======
+                             Text="{Binding CodigoActual, UpdateSourceTrigger=PropertyChanged}"/>
+>>>>>>> funcion: guardar archivo .tmp con dialogo windows:DesktopAppPrototipo/AcademicIDE/Views/MainView.xaml
                 </Border>
 
                 <!-- Divisor visual entre editor y terminal -->
@@ -125,13 +143,13 @@
 
         </Grid>
 
-        <!-- ═══════════════════════════════════════════ -->
-        <!-- FILA 2: Barra de estado                     -->
-        <!-- Mostrará: archivo activo, estado guardado,  -->
-        <!-- tiempo de trabajo (RF-17), estado de firma  -->
-        <!-- ═══════════════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- FILA 2: Barra de estado                               -->
+        <!-- RF-11: muestra ruta del archivo y confirmación guardado -->
+        <!-- Pendiente: tiempo de trabajo (RF-17), firma (RF-14)   -->
+        <!-- ═══════════════════════════════════════════════════════ -->
         <Border Grid.Row="2" Background="#007ACC">
-            <TextBlock Text="[Barra de estado — pendiente]"
+            <TextBlock Text="{Binding MensajeEstado}"
                        Foreground="White"
                        FontSize="11"
                        VerticalAlignment="Center"
