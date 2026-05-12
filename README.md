@@ -4,7 +4,7 @@
 ![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white)
 
-👥 Resumen
+🎯 Resumen
 ---
 Nuestro proyecto consiste en un IDE de Python diseñado específicamente para el entorno académico, con características que ayuden a reducir la dependencia generada por estudiantes a herramientas externas.
 
