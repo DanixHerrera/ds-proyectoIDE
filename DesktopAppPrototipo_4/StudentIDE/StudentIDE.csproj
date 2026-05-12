@@ -10,4 +10,8 @@
     <RootNamespace>StudentIDE</RootNamespace>
   </PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+	</ItemGroup>
+
 </Project>

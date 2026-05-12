@@ -49,3 +49,6 @@ C:\Users\Danix\source\repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\St
 C:\Users\Danix\source\repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\StudentIDE.pdb
 C:\Users\Danix\source\repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\StudentIDE.genruntimeconfig.cache
 C:\Users\Danix\source\repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\ref\StudentIDE.dll
+C:\Users\Danix\Source\Repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\bin\Debug\net8.0-windows\ICSharpCode.AvalonEdit.dll
+C:\Users\Danix\Source\Repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\StudentIDE.csproj.AssemblyReference.cache
+C:\Users\Danix\Source\Repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\StudentIDE.csproj.Up2Date

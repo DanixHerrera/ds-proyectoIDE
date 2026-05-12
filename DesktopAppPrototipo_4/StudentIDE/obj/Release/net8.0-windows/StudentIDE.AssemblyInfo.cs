@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StudentIDE")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cb262a85079a067b9a8ed4e6c352252d11204d83")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8b0f92f49d08c82589be928c4b8664e062fe7627")]
 [assembly: System.Reflection.AssemblyProductAttribute("StudentIDE")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StudentIDE")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "d9Ql4OHvQaY=",
+  "dgSpecHash": "bHbEN1bui8o=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Danix\\source\\repos\\DanixHerrera\\ds-proyectoIDE\\DesktopAppPrototipo_4\\StudentIDE\\StudentIDE.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\Danix\\Source\\Repos\\DanixHerrera\\ds-proyectoIDE\\DesktopAppPrototipo_4\\StudentIDE\\StudentIDE.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Danix\\.nuget\\packages\\avalonedit\\6.3.0.90\\avalonedit.6.3.0.90.nupkg.sha512"
+  ],
   "logs": []
 }
