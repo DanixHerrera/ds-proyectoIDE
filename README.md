@@ -5,3 +5,21 @@
 ![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white)
 
 Proyecto IDE Anticheating - Diseño de Software - Tecnológico de Costa Rica 
+
+👥 Equipo
+---
+Grupo 6
++ Daniel Josué Herrera Córdoba
++ Kevin David Jiménez Escalante
++ Andrés De Jesús Canossa Castro
+
+🧮 Organización
+---
+[]
+
+📄 Docs
+---
+[]
+
+
+
