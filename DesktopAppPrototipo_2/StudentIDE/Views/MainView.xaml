@@ -1,0 +1,142 @@
+<Window x:Class="StudentIDE.Views.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="StudentIDE"
+        Height="700"
+        Width="1100"
+        WindowStartupLocation="CenterScreen">
+
+    <!--
+        ESTRUCTURA PRINCIPAL DE LA VENTANA
+        Dividida en 3 zonas verticales:
+          1. Barra superior (menú + acciones)
+          2. Zona central (panel de archivos | editor | terminal)
+          3. Barra de estado inferior
+    -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- Fila 0: Barra superior -->
+            <RowDefinition Height="40"/>
+            <!-- Fila 1: Zona de trabajo principal -->
+            <RowDefinition Height="*"/>
+            <!-- Fila 2: Barra de estado -->
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- FILA 0: Barra superior                      -->
+        <!-- Aquí irá el menú Archivo / Ver / Ejecutar   -->
+        <!-- y el botón "Entregar Tarea" (RF-22)          -->
+        <!-- ═══════════════════════════════════════════ -->
+        <Border Grid.Row="0" Background="#2D2D2D">
+            <TextBlock Text="[Barra de menú y acciones — pendiente]"
+                       Foreground="Gray"
+                       VerticalAlignment="Center"
+                       Margin="10,0"/>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- FILA 1: Zona central dividida en 3 columnas -->
+        <!-- ═══════════════════════════════════════════ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <!-- Col 0: Panel lateral de archivos/proyectos -->
+                <ColumnDefinition Width="200"/>
+                <!-- Col 1: Editor de código (RF-05) -->
+                <ColumnDefinition Width="*"/>
+                <!-- Col 2: Panel de tareas (RF-06) -->
+                <ColumnDefinition Width="250"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ─────────────────────────────────── -->
+            <!-- COL 0: Panel de archivos/proyectos  -->
+            <!-- Gestor de proyectos (RF-09)          -->
+            <!-- ─────────────────────────────────── -->
+            <Border Grid.Column="0" Background="#252526" BorderBrush="#3C3C3C" BorderThickness="0,0,1,0">
+                <StackPanel Margin="8">
+                    <TextBlock Text="EXPLORADOR" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <!-- Aquí irá el TreeView de proyectos y archivos (RF-09, RF-10) -->
+                    <TextBlock Text="[Panel de proyectos — pendiente]" Foreground="#555" FontSize="11" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ─────────────────────────────────── -->
+            <!-- COL 1: Editor de código             -->
+            <!-- RF-05: Área de edición de código    -->
+            <!-- Por ahora: TextBox simple            -->
+            <!-- Aquí se integrará AvalonEdit después -->
+            <!-- ─────────────────────────────────── -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <!-- Zona del editor -->
+                    <RowDefinition Height="*"/>
+                    <!-- Separador arrastrabe -->
+                    <RowDefinition Height="5"/>
+                    <!-- Terminal interactiva (RF-16) -->
+                    <RowDefinition Height="180"/>
+                </Grid.RowDefinitions>
+
+                <!-- Editor de código -->
+                <Border Grid.Row="0" Background="#1E1E1E">
+                    <TextBox x:Name="CodeEditor"
+                             Background="#1E1E1E"
+                             Foreground="#D4D4D4"
+                             FontFamily="Consolas"
+                             FontSize="14"
+                             AcceptsReturn="True"
+                             AcceptsTab="True"
+                             VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Auto"
+                             BorderThickness="0"
+                             Padding="10"
+                             TextWrapping="NoWrap"
+                             SpellCheck.IsEnabled="False"
+                             Text="# Bienvenido a StudentIDE&#x0a;# Abre o crea un archivo para comenzar"/>
+                </Border>
+
+                <!-- Divisor visual entre editor y terminal -->
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="#3C3C3C"/>
+
+                <!-- Terminal interactiva (RF-16) — espacio reservado -->
+                <Border Grid.Row="2" Background="#0C0C0C">
+                    <StackPanel>
+                        <TextBlock Text="TERMINAL" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="10,6,0,4"/>
+                        <!-- Aquí irá la terminal interactiva (RF-16) -->
+                        <TextBlock Text="[Terminal interactiva — pendiente]" Foreground="#555" FontSize="11" Margin="10,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ─────────────────────────────────── -->
+            <!-- COL 2: Panel de tareas              -->
+            <!-- RF-06: Visualización de tareas      -->
+            <!-- RF-07: Ver detalles de tarea        -->
+            <!-- ─────────────────────────────────── -->
+            <Border Grid.Column="2" Background="#252526" BorderBrush="#3C3C3C" BorderThickness="1,0,0,0">
+                <StackPanel Margin="8">
+                    <TextBlock Text="TAREAS" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <!-- Aquí irá la lista de tareas y el botón de entrega (RF-06, RF-22) -->
+                    <TextBlock Text="[Panel de tareas — pendiente]" Foreground="#555" FontSize="11" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- FILA 2: Barra de estado                     -->
+        <!-- Mostrará: archivo activo, estado guardado,  -->
+        <!-- tiempo de trabajo (RF-17), estado de firma  -->
+        <!-- ═══════════════════════════════════════════ -->
+        <Border Grid.Row="2" Background="#007ACC">
+            <TextBlock Text="[Barra de estado — pendiente]"
+                       Foreground="White"
+                       FontSize="11"
+                       VerticalAlignment="Center"
+                       Margin="10,0"/>
+        </Border>
+
+    </Grid>
+</Window>
