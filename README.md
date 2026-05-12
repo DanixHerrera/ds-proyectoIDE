@@ -15,7 +15,7 @@ Grupo 6
 
 🧮 Organización
 ---
-[]
+[![Project Kanban](https://img.shields.io/badge/View-Kanban_Board-blue?style=for-the-badge&logo=github)](https://github.com/users/DanixHerrera/projects/13/views/1)
 
 📄 Docs
 ---
