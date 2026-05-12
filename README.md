@@ -4,7 +4,18 @@
 ![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white)
 
-Proyecto IDE Anticheating - Diseño de Software - Tecnológico de Costa Rica 
+👥 Resumen
+---
+Nuestro proyecto consiste en un IDE de Python diseñado específicamente para el entorno académico, con caracter´ısticas que ayuden a reducir la dependencia generada por estudiantes a herramientas externas.
+El sistema estar´a compuesto por dos componentes principales:
+**1. Entorno de estudiantes**
++ Un editor de Python que les permita compilar y ejecutar programas directamente, que cuente con una terminal interactiva.
++ Tambi´en, se bloquear´an opciones como el copiar de portapapeles o arrastrar texto desde otras aplicaciones.
++ Se utilizar´a una firma digital al inicio de cada archivo que permita al IDE identificar si el archivo fue editado por fuera.
++ Por ´ultimo, contar´a con un m´odulo de tareas donde el estudiante pueda leer los enunciados, desarrollar su soluci´on y entregar directamente.
++ 
+**2. Entorno de profesores**
++ La soluci´on les permitir´a a los profesores crear un curso, agregar estudiantes, visualizar las entregas realizadas y revisar las versiones entregadas por los estudiantes.
 
 👥 Equipo
 ---
@@ -15,7 +26,7 @@ Grupo 6
 
 🧮 Organización
 ---
-[![Project Kanban](https://img.shields.io/badge/View-Kanban_Board-blue?style=for-the-badge&logo=github)](https://github.com/users/DanixHerrera/projects/13/views/1)
+[![Project Kanban](https://img.shields.io/badge/Ver-Kanban_Board-blue?style=for-the-badge&logo=github)](https://github.com/users/DanixHerrera/projects/13/views/1)
 
 📄 Docs
 ---
