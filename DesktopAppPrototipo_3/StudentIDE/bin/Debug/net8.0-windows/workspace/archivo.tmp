@@ -1,0 +1,4 @@
+﻿# Bienvenido a StudentIDE
+# Abre o crea un archivo para comenzar
+
+print("hello world")
