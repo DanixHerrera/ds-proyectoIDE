@@ -34,6 +34,15 @@
 		<!-- ═══════════════════════════════════════════════════════ -->
 		<Border Grid.Row="0" Background="#2D2D2D">
 			<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                <Button Content="📂 Abrir"
+                        Command="{Binding AbrirCommand}"
+                        Background="#3C3C3C"
+                        Foreground="White"
+                        BorderBrush="#555"
+                        Padding="10,4"
+                        Margin="0,0,8,0"
+                        Cursor="Hand"
+                        ToolTip="Abrir archivo"/>
 				<!-- Botón Guardar (RF-11) -->
 				<Button Content="💾 Guardar"
                         Command="{Binding GuardarCommand}"
@@ -45,7 +54,15 @@
                         Cursor="Hand"
                         ToolTip="Guardar archivo (Ctrl+S)"/>
 				<!-- TODO RF-12: Botón Ejecutar -->
-				<!-- <Button Content="▶ Ejecutar" .../> -->
+				<Button Content="▶ Ejecutar"
+                        Command="{Binding EjecutarCommand}"
+                        Background="#3C3C3C"
+                        Foreground="White"
+                        BorderBrush="#555"
+                        Padding="10,4"
+                        Margin="0,0,8,0"
+                        Cursor="Hand"
+                        ToolTip="Ejecutar (F5)"/>
 				<!-- TODO RF-22: Botón Entregar Tarea -->
 				<!-- <Button Content="📤 Entregar Tarea" .../> -->
 			</StackPanel>
@@ -121,11 +138,61 @@
 
 				<!-- Terminal interactiva (RF-16) — espacio reservado -->
 				<Border Grid.Row="2" Background="#0C0C0C">
-					<StackPanel>
-						<TextBlock Text="TERMINAL" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="10,6,0,4"/>
-						<!-- Aquí irá la terminal interactiva (RF-16) -->
-						<TextBlock Text="[Terminal interactiva — pendiente]" Foreground="#555" FontSize="11" Margin="10,0"/>
-					</StackPanel>
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="Auto"/>
+						</Grid.RowDefinitions>
+						
+						<TextBlock Grid.Row="0" Text="TERMINAL" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="10,6,0,4"/>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+						    <TextBox Text="{Binding SalidaTerminal, Mode=OneWay}"
+                                     Foreground="#CCCCCC" 
+                                     Background="Transparent"
+                                     BorderBrush="Transparent"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     FontFamily="Consolas"
+                                     FontSize="12"
+                                     Margin="10,0"/>
+                        </ScrollViewer>
+						
+						<Grid Grid.Row="2">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto"/>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="Auto"/>
+							</Grid.ColumnDefinitions>
+							
+							<TextBlock Grid.Column="0" Text=">" Foreground="#00FF00" FontFamily="Consolas" FontSize="12" Margin="10,2,5,2" VerticalAlignment="Center"/>
+							
+							<TextBox Grid.Column="1" 
+							         Text="{Binding InputTerminal, UpdateSourceTrigger=PropertyChanged}"
+							         Foreground="#FFFFFF" 
+							         Background="Transparent"
+							         BorderBrush="Transparent"
+							         CaretBrush="White"
+							         FontFamily="Consolas"
+							         FontSize="12"
+							         Margin="0,2,0,2">
+								<TextBox.InputBindings>
+									<KeyBinding Key="Return" Command="{Binding EnviarTerminalCommand}" />
+								</TextBox.InputBindings>
+							</TextBox>
+							
+							<Button Grid.Column="2" 
+							        Content="Enviar" 
+							        Command="{Binding EnviarTerminalCommand}"
+							        Background="#3C3C3C" 
+							        Foreground="White"
+							        BorderBrush="Transparent"
+							        Padding="5,1"
+							        Margin="5,2,10,2"
+							        FontSize="11"/>
+						</Grid>
+					</Grid>
 				</Border>
 			</Grid>
 

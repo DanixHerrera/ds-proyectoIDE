@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit;
 using StudentIDE.ViewModels;
+using StudentIDE.Helpers;
 
 namespace StudentIDE.Views
 {
@@ -26,6 +27,7 @@ namespace StudentIDE.Views
 
             _viewModel = new MainViewModel();
             DataContext = _viewModel;
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
             // RF-11: Ctrl+S activo a nivel de ventana,
             // incluso cuando el foco está dentro del editor AvalonEdit.
@@ -34,12 +36,25 @@ namespace StudentIDE.Views
                 new KeyGesture(Key.S, ModifierKeys.Control)
             ));
 
+            InputBindings.Add(new KeyBinding(
+                _viewModel.AbrirCommand,
+                new KeyGesture(Key.O, ModifierKeys.Control)
+            ));
+
+            InputBindings.Add(new KeyBinding(
+                _viewModel.EjecutarCommand,
+                new KeyGesture(Key.F5)
+            ));
+
             // Cargar texto inicial del ViewModel en el editor
             CodeEditor.Text = _viewModel.CodigoActual;
 
             // Cada vez que el usuario escriba en el editor,
             // actualizar CodigoActual en el ViewModel.
             CodeEditor.TextChanged += OnEditorTextChanged;
+
+            // RF-19: Bloqueo de uso externo del portapapeles
+            ClipboardBlocker.Attach(CodeEditor);
         }
 
         /// <summary>
@@ -51,6 +66,17 @@ namespace StudentIDE.Views
             // Evitar ciclo: solo actualizar si el contenido realmente difiere
             if (_viewModel.CodigoActual != CodeEditor.Text)
                 _viewModel.CodigoActual = CodeEditor.Text;
+        }
+
+        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainViewModel.CodigoActual))
+            {
+                if (CodeEditor.Text != _viewModel.CodigoActual)
+                {
+                    CodeEditor.Text = _viewModel.CodigoActual;
+                }
+            }
         }
     }
 }

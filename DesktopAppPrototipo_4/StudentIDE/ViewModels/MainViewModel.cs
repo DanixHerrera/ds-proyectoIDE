@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -28,11 +29,16 @@ namespace StudentIDE.ViewModels
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly FileService _fileService;
+        private readonly PythonRunnerService _pythonRunnerService;
 
         public MainViewModel()
         {
             _fileService = new FileService();
+            _pythonRunnerService = new PythonRunnerService();
             GuardarCommand = new RelayCommand(Guardar);
+            AbrirCommand = new RelayCommand(Abrir);
+            EjecutarCommand = new RelayCommand(Ejecutar);
+            EnviarTerminalCommand = new RelayCommand(EnviarTerminal);
             MensajeEstado = "Listo";
         }
 
@@ -57,6 +63,9 @@ namespace StudentIDE.ViewModels
         // ── RF-11: Comando Guardar ─────────────────────────────────────
 
         public ICommand GuardarCommand { get; }
+        public ICommand AbrirCommand { get; }
+        public ICommand EjecutarCommand { get; }
+        public ICommand EnviarTerminalCommand { get; }
 
         private void Guardar()
         {
@@ -104,6 +113,85 @@ namespace StudentIDE.ViewModels
                     MessageBoxButton.OK,
                     MessageBoxImage.Error
                 );
+            }
+        }
+
+        private void Abrir()
+        {
+            var dialogo = new OpenFileDialog
+            {
+                Title = "Abrir archivo",
+                DefaultExt = ".py",
+                Filter = "Archivos Python (*.py)|*.py|Todos los archivos (*.*)|*.*",
+                FilterIndex = 1
+            };
+
+            if (dialogo.ShowDialog() == true)
+            {
+                string ruta = dialogo.FileName;
+                CodigoActual = File.ReadAllText(ruta);
+                MensajeEstado = $"Archivo abierto | {ruta}";
+            }
+        }
+
+        private async void Ejecutar()
+        {
+            if (MensajeEstado == "Ejecutando...") 
+            {
+                _pythonRunnerService.Detener();
+                MensajeEstado = "Ejecución detenida.";
+                return;
+            }
+
+            MensajeEstado = "Ejecutando...";
+            SalidaTerminal = "";
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "studentIDE_temp.py");
+            File.WriteAllText(tempFile, CodigoActual);
+
+            await _pythonRunnerService.IniciarInteractivaAsync(
+                tempFile,
+                output => 
+                {
+                    Application.Current.Dispatcher.Invoke(() => 
+                    {
+                        SalidaTerminal += output;
+                    });
+                },
+                exitCode => 
+                {
+                    Application.Current.Dispatcher.Invoke(() => 
+                    {
+                        if (exitCode == 0)
+                            MensajeEstado = "Ejecución finalizada con éxito.";
+                        else
+                            MensajeEstado = $"Error de ejecución (Código {exitCode})";
+                    });
+                }
+            );
+        }
+
+        private string _salidaTerminal = "";
+        public string SalidaTerminal
+        {
+            get => _salidaTerminal;
+            set { _salidaTerminal = value; OnPropertyChanged(); }
+        }
+
+        private string _inputTerminal = "";
+        public string InputTerminal
+        {
+            get => _inputTerminal;
+            set { _inputTerminal = value; OnPropertyChanged(); }
+        }
+
+        private void EnviarTerminal()
+        {
+            if (!string.IsNullOrEmpty(InputTerminal))
+            {
+                SalidaTerminal += InputTerminal + Environment.NewLine;
+                _pythonRunnerService.EscribirInput(InputTerminal);
+                InputTerminal = "";
             }
         }
 
