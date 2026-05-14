@@ -2,9 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="StudentIDE — Iniciar sesión"
-        Height="400" Width="400"
+        Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize" Background="#FF2B2B2A">
 
     <!--
         RF-01: Ingreso de estudiantes
@@ -12,9 +12,18 @@
         Esta vista se implementará en la siguiente iteración.
     -->
     <Grid>
-        <TextBlock Text="[Login — pendiente RF-01]"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Foreground="Gray"/>
+        <Button x:Name="IniciarSesion" Content="Iniciar sesión" HorizontalAlignment="Center" Height="50" Margin="0,229,0,0" VerticalAlignment="Top" Width="1080" Click="Button_Click" Background="#FF40407F" Foreground="#FF7F7FFF" BorderBrush="#FF7F7FFF" FontSize="36"/>
+        <TextBox HorizontalAlignment="Center" Height="50" Margin="0,65,0,0" TextWrapping="Wrap" Text="Nombre" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" MaxLines="1" Foreground="White" FontSize="36"/>
+        <TextBlock Text="Nombre de Usuario"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Foreground="Gray" Margin="0,10,0,0" Height="50" Width="1080" FontSize="36"/>
+        <TextBlock Text="Contraseña"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Foreground="Gray" Margin="0,120,0,0" Height="50" Width="1080" FontSize="36"/>
+        <TextBox HorizontalAlignment="Center" Height="49" TextWrapping="Wrap" Text="Contraseña" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" Foreground="White" MaxLines="2147483638" FontSize="36" Margin="0,175,0,0"/>
+        <Button x:Name="OlvideContrasena" Content="Olvidé mi contraseña" HorizontalAlignment="Center" Height="50" Margin="0,284,0,0" VerticalAlignment="Top" Width="1080" Click="OlvideContrasena_Click" Background="#FF1F1F3F" FontSize="36" BorderBrush="#FF7F7FFF" Foreground="#FF7F7FFF"/>
+
     </Grid>
 </Window>
