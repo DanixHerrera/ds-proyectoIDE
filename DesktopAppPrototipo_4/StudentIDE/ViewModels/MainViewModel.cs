@@ -71,13 +71,13 @@ namespace StudentIDE.ViewModels
         {
             // 1. Abrir diálogo de guardado de Windows
             var dialogo = new SaveFileDialog
-            {
-                Title       = "Guardar archivo",
-                FileName    = "archivo",          // nombre sugerido
-                DefaultExt  = ".tmp",             // TODO RF-08: cambiar a .py al oficializar
-                Filter      = "Archivo temporal (*.tmp)|*.tmp|Todos los archivos (*.*)|*.*",
-                FilterIndex = 1
-            };
+        {
+            Title       = "Guardar archivo",
+            FileName    = "archivo",          // nombre sugerido
+            DefaultExt  = ".py",
+            Filter      = "Archivo de Python (*.py)|*.py|Todos los archivos (*.*)|*.*",
+            FilterIndex = 1
+        };
 
             // 2. Si el usuario cancela el diálogo, no hacer nada
             bool? resultado = dialogo.ShowDialog();
