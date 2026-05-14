@@ -11,10 +11,9 @@ namespace StudentIDE.Services
         public int CodigoSalida { get; set; }
     }
 
-    /// <summary>
-    /// Ejecuta scripts Python usando el intérprete local o del sistema.
-    /// Flujo interactivo capturando la salida en tiempo real y permitiendo input.
-    /// </summary>
+ 
+    //Ejecuta scripts Python usando el intérprete local o del sistema.
+    //flujo interactivo capturando la salida en tiempo real y permitiendo input.
     public class PythonRunnerService
     {
         private Process? _process;

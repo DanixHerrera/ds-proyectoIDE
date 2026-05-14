@@ -6,17 +6,7 @@ using StudentIDE.Helpers;
 
 namespace StudentIDE.Views
 {
-    /// <summary>
-    /// Code-behind de la ventana principal.
-    ///
-    /// AvalonEdit no expone su propiedad Text como DependencyProperty estándar
-    /// de WPF, por lo que no admite {Binding} directo desde XAML.
-    /// La sincronización entre el editor y el ViewModel se hace aquí:
-    ///
-    ///   - Al cargar la ventana: ViewModel → Editor (texto inicial)
-    ///   - Al escribir en el editor: Editor → ViewModel (evento TextChanged)
-    ///   - Al guardar: el ViewModel ya tiene el texto actualizado en CodigoActual
-    /// </summary>
+  
     public partial class MainView : Window
     {
         private readonly MainViewModel _viewModel;
@@ -29,8 +19,8 @@ namespace StudentIDE.Views
             DataContext = _viewModel;
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
-            // RF-11: Ctrl+S activo a nivel de ventana,
-            // incluso cuando el foco está dentro del editor AvalonEdit.
+            //ctrl+S activo a nivel de ventana,
+
             InputBindings.Add(new KeyBinding(
                 _viewModel.GuardarCommand,
                 new KeyGesture(Key.S, ModifierKeys.Control)
@@ -46,24 +36,17 @@ namespace StudentIDE.Views
                 new KeyGesture(Key.F5)
             ));
 
-            // Cargar texto inicial del ViewModel en el editor
             CodeEditor.Text = _viewModel.CodigoActual;
 
-            // Cada vez que el usuario escriba en el editor,
-            // actualizar CodigoActual en el ViewModel.
+
             CodeEditor.TextChanged += OnEditorTextChanged;
 
-            // RF-19: Bloqueo de uso externo del portapapeles
             ClipboardBlocker.Attach(CodeEditor);
         }
 
-        /// <summary>
-        /// Mantiene CodigoActual en el ViewModel sincronizado
-        /// con lo que el usuario escribe en el editor AvalonEdit.
-        /// </summary>
+        //Mantiene CodigoActual en el ViewModel sincronizado con lo que el usuario escribe en el editor AvalonEdit.
         private void OnEditorTextChanged(object? sender, EventArgs e)
         {
-            // Evitar ciclo: solo actualizar si el contenido realmente difiere
             if (_viewModel.CodigoActual != CodeEditor.Text)
                 _viewModel.CodigoActual = CodeEditor.Text;
         }

@@ -1,13 +1,20 @@
 namespace StudentIDE.Services
 {
-    /// <summary>
-    /// RF-14 / RF-15: Genera y verifica la firma digital SHA-256
-    /// que se incrusta al inicio de cada archivo .py creado en el IDE.
-    /// </summary>
+ 
+    // Genera y verifica la firma digital SHA-256 al archivo .py creado en el IDE
+
     public class DigitalSignatureService
     {
-        // TODO: implementar generación y verificación de firma
-        // public string GenerarFirma(string contenido) { ... }
-        // public bool VerificarFirma(string contenidoArchivo) { ... }
+
+        /*
+         public string GenerarFirma(string contenido) {
+
+
+        }
+        */
+        /*
+        public bool VerificarFirma(string contenidoArchivo) {
+            
+        }*/
     }
 }

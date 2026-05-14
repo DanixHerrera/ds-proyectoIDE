@@ -9,23 +9,9 @@ using StudentIDE.Services;
 
 namespace StudentIDE.ViewModels
 {
-    /// <summary>
-    /// ViewModel principal de la ventana de trabajo.
-    ///
-    /// Implementado:
-    ///   - RF-05: CodigoActual enlazado al editor
-    ///   - RF-11: GuardarCommand (Ctrl+S y botón Guardar)
-    ///            Abre diálogo de Windows para elegir ubicación,
-    ///            muestra MessageBox de éxito o error,
-    ///            actualiza barra de estado con la ruta guardada.
-    ///
-    /// Pendiente:
-    ///   - RF-12: comando Ejecutar script
-    ///   - RF-19: lógica de bloqueo de pegado
-    ///   - RF-06: lista de tareas del estudiante
-    ///   - RF-22: comando Entregar Tarea
-    ///   - RF-14: verificación de firma digital
-    /// </summary>
+
+    // ViewModel principal de la ventana de trabajo.
+
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly FileService _fileService;
@@ -42,7 +28,7 @@ namespace StudentIDE.ViewModels
             MensajeEstado = "Listo";
         }
 
-        // ── RF-05: Contenido del editor ────────────────────────────────
+        // Contenido del editor ────────────────────────────────
 
         private string _codigoActual = "# Bienvenido a StudentIDE\n# Abre o crea un archivo para comenzar";
         public string CodigoActual
@@ -51,7 +37,7 @@ namespace StudentIDE.ViewModels
             set { _codigoActual = value; OnPropertyChanged(); }
         }
 
-        // ── RF-11: Barra de estado ─────────────────────────────────────
+        //Barra de estado ─────────────────────────────────────
 
         private string _mensajeEstado = "Listo";
         public string MensajeEstado
@@ -60,7 +46,7 @@ namespace StudentIDE.ViewModels
             set { _mensajeEstado = value; OnPropertyChanged(); }
         }
 
-        // ── RF-11: Comando Guardar ─────────────────────────────────────
+        // Comando Guardar ─────────────────────────────────────
 
         public ICommand GuardarCommand { get; }
         public ICommand AbrirCommand { get; }
@@ -69,32 +55,32 @@ namespace StudentIDE.ViewModels
 
         private void Guardar()
         {
-            // 1. Abrir diálogo de guardado de Windows
+          
             var dialogo = new SaveFileDialog
         {
             Title       = "Guardar archivo",
-            FileName    = "archivo",          // nombre sugerido
+            FileName    = "archivo",        
             DefaultExt  = ".py",
             Filter      = "Archivo de Python (*.py)|*.py|Todos los archivos (*.*)|*.*",
             FilterIndex = 1
         };
 
-            // 2. Si el usuario cancela el diálogo, no hacer nada
+         
             bool? resultado = dialogo.ShowDialog();
             if (resultado != true)
                 return;
 
             string rutaElegida = dialogo.FileName;
 
-            // 3. Intentar guardar en la ruta elegida
+
             bool exitoso = _fileService.Guardar(rutaElegida, CodigoActual);
 
-            // 4. Actualizar barra de estado
+   
             MensajeEstado = exitoso
                 ? $"Archivo guardado  |  {rutaElegida}"
                 : "Error: no se pudo guardar el archivo.";
 
-            // 5. Mostrar diálogo de confirmación
+
             if (exitoso)
             {
                 MessageBox.Show(
@@ -195,8 +181,10 @@ namespace StudentIDE.ViewModels
             }
         }
 
-        // TODO RF-06: Lista de tareas
-        // public ObservableCollection<Tarea> Tareas { get; set; } = new();
+        //Lista de tareas
+        // public ObservableCollection<Tarea> Tareas{
+        // get;
+        // set; } = new();
 
         // ── INotifyPropertyChanged ──────────────────────────────────────
         public event PropertyChangedEventHandler? PropertyChanged;

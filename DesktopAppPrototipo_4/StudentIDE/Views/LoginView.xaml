@@ -9,7 +9,6 @@
     <!--
         RF-01: Ingreso de estudiantes
         RF-28: Ingreso de profesor
-        Esta vista se implementará en la siguiente iteración.
     -->
     <Grid>
         <Button x:Name="IniciarSesion" Content="Iniciar sesión" HorizontalAlignment="Center" Height="50" Margin="0,229,0,0" VerticalAlignment="Top" Width="1080" Click="Button_Click" Background="#FF40407F" Foreground="#FF7F7FFF" BorderBrush="#FF7F7FFF" FontSize="36"/>

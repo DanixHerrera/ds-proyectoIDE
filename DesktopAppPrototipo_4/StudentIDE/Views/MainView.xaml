@@ -12,26 +12,22 @@
 
 	<!--
         ESTRUCTURA PRINCIPAL DE LA VENTANA
-        Dividida en 3 zonas verticales:
-          1. Barra superior (menú + acciones)
-          2. Zona central (panel de archivos | editor | terminal)
-          3. Barra de estado inferior
+        - Barra superior (menu + acciones)
+         - Zona central (panel de archivos | editor | terminal)
+         -Barra de estado inferior
     -->
 	<Grid>
 		<Grid.RowDefinitions>
-			<!-- Fila 0: Barra superior -->
+	
 			<RowDefinition Height="40"/>
-			<!-- Fila 1: Zona de trabajo principal -->
+	
 			<RowDefinition Height="*"/>
-			<!-- Fila 2: Barra de estado -->
+	
 			<RowDefinition Height="25"/>
 		</Grid.RowDefinitions>
 
-		<!-- ═══════════════════════════════════════════════════════ -->
-		<!-- FILA 0: Barra superior                                 -->
-		<!-- RF-11: Botón Guardar + atajo Ctrl+S                   -->
-		<!-- Aquí irán más acciones: Ejecutar (RF-12), Entregar (RF-22) -->
-		<!-- ═══════════════════════════════════════════════════════ -->
+
+		<!-- FILA 0: Barra superior  -->
 		<Border Grid.Row="0" Background="#2D2D2D">
 			<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
                 <Button Content="📂 Abrir"
@@ -43,7 +39,7 @@
                         Margin="0,0,8,0"
                         Cursor="Hand"
                         ToolTip="Abrir archivo"/>
-				<!-- Botón Guardar (RF-11) -->
+				
 				<Button Content="💾 Guardar"
                         Command="{Binding GuardarCommand}"
                         Background="#3C3C3C"
@@ -53,7 +49,7 @@
                         Margin="0,0,8,0"
                         Cursor="Hand"
                         ToolTip="Guardar archivo (Ctrl+S)"/>
-				<!-- TODO RF-12: Botón Ejecutar -->
+			
 				<Button Content="▶ Ejecutar"
                         Command="{Binding EjecutarCommand}"
                         Background="#3C3C3C"
@@ -63,8 +59,7 @@
                         Margin="0,0,8,0"
                         Cursor="Hand"
                         ToolTip="Ejecutar (F5)"/>
-				<!-- TODO RF-22: Botón Entregar Tarea -->
-				<!-- <Button Content="📤 Entregar Tarea" .../> -->
+
 			</StackPanel>
 		</Border>
 
@@ -73,50 +68,40 @@
 		<!-- ═══════════════════════════════════════════ -->
 		<Grid Grid.Row="1">
 			<Grid.ColumnDefinitions>
-				<!-- Col 0: Panel lateral de archivos/proyectos -->
+		
 				<ColumnDefinition Width="200"/>
-				<!-- Col 1: Editor de código (RF-05) -->
+		
 				<ColumnDefinition Width="*"/>
-				<!-- Col 2: Panel de tareas (RF-06) -->
+				
 				<ColumnDefinition Width="250"/>
 			</Grid.ColumnDefinitions>
 
-			<!-- ─────────────────────────────────── -->
+
 			<!-- COL 0: Panel de archivos/proyectos  -->
-			<!-- Gestor de proyectos (RF-09)          -->
-			<!-- ─────────────────────────────────── -->
 			<Border Grid.Column="0" Background="#252526" BorderBrush="#3C3C3C" BorderThickness="0,0,1,0">
 				<StackPanel Margin="8">
 					<TextBlock Text="EXPLORADOR" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
-					<!-- Aquí irá el TreeView de proyectos y archivos (RF-09, RF-10) -->
+					
+                    
+                    
 					<TextBlock Text="[Panel de proyectos — pendiente]" Foreground="#555" FontSize="11" TextWrapping="Wrap"/>
 				</StackPanel>
 			</Border>
 
-			<!-- ─────────────────────────────────── -->
+	
 			<!-- COL 1: Editor de código             -->
-			<!-- RF-05: Área de edición de código    -->
-			<!-- Por ahora: TextBox simple            -->
-			<!-- Aquí se integrará AvalonEdit después -->
-			<!-- ─────────────────────────────────── -->
 			<Grid Grid.Column="1">
 				<Grid.RowDefinitions>
-					<!-- Zona del editor -->
+			
 					<RowDefinition Height="*"/>
-					<!-- Separador arrastrabe -->
+				
 					<RowDefinition Height="5"/>
-					<!-- Terminal interactiva (RF-16) -->
+		
 					<RowDefinition Height="180"/>
 				</Grid.RowDefinitions>
 
-				<!-- ─────────────────────────────────────────────────────── -->
+
 				<!-- COL 1: Editor de código — RF-05                        -->
-				<!-- AvalonEdit: syntax highlighting Python, núm. de línea, -->
-				<!-- resaltado de línea activa, tema oscuro                 -->
-				<!-- NOTA: Text de AvalonEdit no es DependencyProperty,     -->
-				<!-- la sincronización con el ViewModel se hace en          -->
-				<!-- MainView.xaml.cs mediante el evento TextChanged.       -->
-				<!-- ─────────────────────────────────────────────────────── -->
 				<avalonedit:TextEditor
                     x:Name="CodeEditor"
                     Grid.Row="0"
@@ -196,26 +181,19 @@
 				</Border>
 			</Grid>
 
-			<!-- ─────────────────────────────────── -->
-			<!-- COL 2: Panel de tareas              -->
-			<!-- RF-06: Visualización de tareas      -->
-			<!-- RF-07: Ver detalles de tarea        -->
-			<!-- ─────────────────────────────────── -->
+			<!-- COL 2: Panel de tareas -->
 			<Border Grid.Column="2" Background="#252526" BorderBrush="#3C3C3C" BorderThickness="1,0,0,0">
 				<StackPanel Margin="8">
 					<TextBlock Text="TAREAS" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
-					<!-- Aquí irá la lista de tareas y el botón de entrega (RF-06, RF-22) -->
+					<!--lista de tareas y el botón de entrega  -->
 					<TextBlock Text="[Panel de tareas — pendiente]" Foreground="#555" FontSize="11" TextWrapping="Wrap"/>
 				</StackPanel>
 			</Border>
 
 		</Grid>
 
-		<!-- ═══════════════════════════════════════════════════════ -->
-		<!-- FILA 2: Barra de estado                               -->
-		<!-- RF-11: muestra ruta del archivo y confirmación guardado -->
-		<!-- Pendiente: tiempo de trabajo (RF-17), firma (RF-14)   -->
-		<!-- ═══════════════════════════════════════════════════════ -->
+		<!-- Barra de estado-->
+
 		<Border Grid.Row="2" Background="#007ACC">
 			<TextBlock Text="{Binding MensajeEstado}"
                        Foreground="White"

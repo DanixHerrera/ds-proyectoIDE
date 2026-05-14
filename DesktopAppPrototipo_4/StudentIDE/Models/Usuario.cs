@@ -1,10 +1,6 @@
 namespace StudentIDE.Models
 {
-    /// <summary>
-    /// Representa al usuario autenticado en la sesión actual.
-    /// RF-01: Ingreso de estudiantes
-    /// Almacena el token JWT activo para las llamadas a la API.
-    /// </summary>
+    // Representa al usuario autenticado en la sesión actual.
     public class Usuario
     {
         public string Carne { get; set; } = string.Empty;
