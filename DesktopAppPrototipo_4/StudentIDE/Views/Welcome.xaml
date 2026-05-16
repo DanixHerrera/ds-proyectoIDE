@@ -1,0 +1,23 @@
+<Window x:Class="StudentIDE.Views.WelcomeView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Welcome — Iniciar sesión"
+        Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize" Background="#FF2B2B2A">
+
+
+    <Grid>
+        <Image HorizontalAlignment="Left" Height="606" VerticalAlignment="Top" Width="1127" Source="/Views/Welcome.png" Margin="10,10,0,0"/>
+        <Rectangle HorizontalAlignment="Center" Height="178" Margin="0,508,0,0" Stroke="#FF2B2B2A" VerticalAlignment="Top" Width="1100" Fill="#FF2B2B2A"/>
+
+        <Button x:Name="RegistrarseBtn" Content="Registrarse" 
+                HorizontalAlignment="Left" Height="154" Margin="10,520,0,0" VerticalAlignment="Top" Width="533" Click="RegistrarseBtn_Click" Background="#FF0B0031" Foreground="#FF7E38FF" BorderBrush="#FF7E38FF" FontSize="72"/>
+
+        <Button x:Name="IniciarSesionBtn" Content="Iniciar sesión" 
+                HorizontalAlignment="Left" Height="154" Margin="556,520,0,0" VerticalAlignment="Top" Width="534" Click="LoginBtn_Click" Background="#FF0B0031" Foreground="#FF7E38FF" BorderBrush="#FF7E38FF" FontSize="72"/>
+
+        <Rectangle HorizontalAlignment="Left" Height="498" Margin="10,10,0,0" Stroke="#FF7E38FF" VerticalAlignment="Top" Width="1077"/>
+
+    </Grid>
+</Window>

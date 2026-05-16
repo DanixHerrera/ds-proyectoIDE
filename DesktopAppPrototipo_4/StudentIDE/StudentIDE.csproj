@@ -10,8 +10,16 @@
     <RootNamespace>StudentIDE</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Views\Welcome.png" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Views\Welcome.png" />
 	</ItemGroup>
 
 </Project>
