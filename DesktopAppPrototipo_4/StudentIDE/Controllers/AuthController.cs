@@ -1,7 +1,7 @@
-namespace StudentIDE.Services
+namespace StudentIDE.Controllers
 {
  
-    public class AuthService
+    public class AuthController
     {
         //implementar login real  API REST
         // public async Task<string?> LoginAsync(string email, string password) { ... }

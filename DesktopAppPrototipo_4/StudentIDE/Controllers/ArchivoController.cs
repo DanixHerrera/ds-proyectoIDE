@@ -1,11 +1,11 @@
 using System.IO;
 
-namespace StudentIDE.Services
+namespace StudentIDE.Controllers
 {
  
     // Gestiona el guardado del archivo en disco.
  
-    public class FileService
+    public class ArchivoController
     {
 
         //Guarda el contenido del editor en la ruta exacta indicada.

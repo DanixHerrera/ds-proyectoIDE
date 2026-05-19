@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace StudentIDE.Services
+namespace StudentIDE.Controllers
 {
     public class ResultadoEjecucion
     {
@@ -14,7 +14,7 @@ namespace StudentIDE.Services
  
     //Ejecuta scripts Python usando el intérprete local o del sistema.
     //flujo interactivo capturando la salida en tiempo real y permitiendo input.
-    public class PythonRunnerService
+    public class InterpretePythonController
     {
         private Process? _process;
 

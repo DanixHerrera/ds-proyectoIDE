@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit;
 using StudentIDE.ViewModels;
-using StudentIDE.Helpers;
+using StudentIDE.Utils;
 
 namespace StudentIDE.Views
 {
@@ -41,7 +41,7 @@ namespace StudentIDE.Views
 
             CodeEditor.TextChanged += OnEditorTextChanged;
 
-            ClipboardBlocker.Attach(CodeEditor);
+            BloqueadorClipboard.Attach(CodeEditor);
         }
 
         //Mantiene CodigoActual en el ViewModel sincronizado con lo que el usuario escribe en el editor AvalonEdit.

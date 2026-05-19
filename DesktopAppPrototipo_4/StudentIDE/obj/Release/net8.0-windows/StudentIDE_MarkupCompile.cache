@@ -10,11 +10,11 @@ none
 false
 TRACE;RELEASE;NET;NET8_0;NETCOREAPP
 C:\Users\Danix\Source\Repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\App.xaml
-21577743027
+4-951787770
 
-13-878169345
+151130204633
 208-1895913100
-Views\LoginView.xaml;Views\MainView.xaml;
+Views\LoginView.xaml;Views\MainView.xaml;Views\Register.xaml;Views\Welcome.xaml;
 
 False
 

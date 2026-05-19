@@ -1,25 +1,14 @@
 using System.Windows.Input;
 
-namespace StudentIDE.Helpers
+namespace StudentIDE.Utils
 {
-    /// <summary>
-    /// Implementación genérica de ICommand para usar en ViewModels (patrón MVVM).
-    /// Permite enlazar botones y atajos de teclado de la View a métodos del ViewModel
-    /// sin código en el code-behind.
-    ///
-    /// Uso en ViewModel:
-    ///   public ICommand GuardarCommand { get; }
-    ///   GuardarCommand = new RelayCommand(Guardar);
-    ///
-    /// Uso en XAML:
-    ///   Command="{Binding GuardarCommand}"
-    /// </summary>
-    public class RelayCommand : ICommand
+   
+    public class AtajoTeclado : ICommand
     {
         private readonly Action _ejecutar;
         private readonly Func<bool>? _puedeEjecutar;
 
-        public RelayCommand(Action ejecutar, Func<bool>? puedeEjecutar = null)
+        public AtajoTeclado(Action ejecutar, Func<bool>? puedeEjecutar = null)
         {
             _ejecutar = ejecutar;
             _puedeEjecutar = puedeEjecutar;

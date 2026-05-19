@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
-using StudentIDE.Helpers;
-using StudentIDE.Services;
+using StudentIDE.Utils;
+using StudentIDE.Controllers;
 
 namespace StudentIDE.ViewModels
 {
@@ -14,17 +14,17 @@ namespace StudentIDE.ViewModels
 
     public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly FileService _fileService;
-        private readonly PythonRunnerService _pythonRunnerService;
+        private readonly ArchivoController _fileService;
+        private readonly InterpretePythonController _pythonRunnerService;
 
         public MainViewModel()
         {
-            _fileService = new FileService();
-            _pythonRunnerService = new PythonRunnerService();
-            GuardarCommand = new RelayCommand(Guardar);
-            AbrirCommand = new RelayCommand(Abrir);
-            EjecutarCommand = new RelayCommand(Ejecutar);
-            EnviarTerminalCommand = new RelayCommand(EnviarTerminal);
+            _fileService = new ArchivoController();
+            _pythonRunnerService = new InterpretePythonController();
+            GuardarCommand = new AtajoTeclado(Guardar);
+            AbrirCommand = new AtajoTeclado(Abrir);
+            EjecutarCommand = new AtajoTeclado(Ejecutar);
+            EnviarTerminalCommand = new AtajoTeclado(EnviarTerminal);
             MensajeEstado = "Listo";
         }
 

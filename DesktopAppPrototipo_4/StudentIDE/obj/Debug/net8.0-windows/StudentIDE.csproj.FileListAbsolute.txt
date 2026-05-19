@@ -102,3 +102,7 @@ C:\Users\k.jimenez.1\Source\Repos\ds-proyectoIDE\DesktopAppPrototipo_4\StudentID
 C:\Users\k.jimenez.1\Source\Repos\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\StudentIDE.pdb
 C:\Users\k.jimenez.1\Source\Repos\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\StudentIDE.genruntimeconfig.cache
 C:\Users\k.jimenez.1\Source\Repos\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\ref\StudentIDE.dll
+C:\Users\Danix\Source\Repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\Views\Register.baml
+C:\Users\Danix\Source\Repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\Views\Welcome.baml
+C:\Users\Danix\Source\Repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\Views\Register.g.cs
+C:\Users\Danix\Source\Repos\DanixHerrera\ds-proyectoIDE\DesktopAppPrototipo_4\StudentIDE\obj\Debug\net8.0-windows\Views\Welcome.g.cs
