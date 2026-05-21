@@ -7,8 +7,8 @@ Plataforma académica compuesta por tres módulos que se comunican entre sí:
 
 | Módulo | Carpeta | Stack |
 |---|---|---|
-| IDE Estudiantil | `student-ide/` | C# · .NET · WPF · Windows |
-| Portal del Profesor | `frontend-profesor/` | Angular · TypeScript |
+| IDE Estudiantil | `StudentIDE/` | C# · .NET · WPF · Windows |
+| Portal del Profesor | `PortalProfesoresWeb/` | Angular · TypeScript |
 | Servidor central | `backend-api/` | PHP · Apache · MySQL (LAMP) |
 
 **Propósito:** Proveer un entorno controlado donde estudiantes de programación escriban código Python sin poder pegar contenido externo ni usar IA. El profesor gestiona cursos, tareas y revisa entregas con historial de versiones Git.
