@@ -1,0 +1,142 @@
+{
+    "name": "StudentIDE Portal de Profesores",
+    "version": "1.0.0",
+    "description": "Portal web para que profesores gestionen cursos, grupos y tareas.",
+    "author": "Equipo de Desarrollo StudentIDE",
+    "license": "MIT",
+    
+    "app": {
+        "title": "StudentIDE - Portal de Profesores",
+        "description": "Sistema de gestión académica para profesores",
+        "version": "1.0.0"
+    },
+
+    "server": {
+        "development": {
+            "host": "localhost",
+            "port": 8000,
+            "protocol": "http"
+        },
+        "ide_backend": {
+            "host": "localhost",
+            "port": 5000,
+            "protocol": "http",
+            "baseURL": "http://localhost:5000/api"
+        }
+    },
+
+    "features": {
+        "authentication": true,
+        "course_management": true,
+        "group_management": true,
+        "task_management": true,
+        "local_storage": true,
+        "api_integration": true,
+        "offline_mode": true
+    },
+
+    "api": {
+        "endpoints": {
+            "courses": "/courses",
+            "groups": "/groups",
+            "tasks": "/tasks",
+            "students": "/students",
+            "auth": "/auth",
+            "submissions": "/submissions"
+        },
+        "authentication": {
+            "type": "Bearer Token",
+            "storage": "localStorage",
+            "key": "authToken"
+        }
+    },
+
+    "storage": {
+        "type": "localStorage",
+        "namespace": "studentIDEData",
+        "persistence": true,
+        "entities": [
+            "users",
+            "courses",
+            "groups",
+            "tasks"
+        ]
+    },
+
+    "ui": {
+        "theme": "light",
+        "framework": "Bootstrap 5",
+        "icons": "Font Awesome 6",
+        "responsive": true,
+        "breakpoints": {
+            "mobile": 576,
+            "tablet": 768,
+            "desktop": 992,
+            "large": 1200
+        }
+    },
+
+    "security": {
+        "cors_enabled": true,
+        "csrf_protection": false,
+        "password_hashing": "required_for_production",
+        "token_expiry": 3600
+    },
+
+    "integration": {
+        "ide_student": {
+            "enabled": true,
+            "sync_events": true,
+            "events": [
+                "professor_login",
+                "professor_logout",
+                "course_created",
+                "course_updated",
+                "course_deleted",
+                "group_created",
+                "group_updated",
+                "group_deleted",
+                "student_added_to_group",
+                "student_removed_from_group",
+                "task_created",
+                "task_updated",
+                "task_deleted",
+                "task_submission_received",
+                "task_submission_scored"
+            ]
+        }
+    },
+
+    "deployment": {
+        "platforms": [
+            "localhost",
+            "apache",
+            "nginx",
+            "iis",
+            "github_pages"
+        ],
+        "requirements": [
+            "Navegador moderno (ES6+)",
+            "JavaScript habilitado",
+            "localStorage habilitado",
+            "CORS habilitado (para API remota)"
+        ]
+    },
+
+    "development": {
+        "language": "JavaScript (ES6+)",
+        "markup": "HTML5",
+        "styling": "CSS3 + Bootstrap 5",
+        "package_manager": "none",
+        "build_tool": "none",
+        "testing": "manual",
+        "version_control": "git"
+    },
+
+    "performance": {
+        "cache_views": true,
+        "lazy_load_scripts": false,
+        "minify_css": "recommended",
+        "minify_js": "recommended"
+    }
+}

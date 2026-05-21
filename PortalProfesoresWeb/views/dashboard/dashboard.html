@@ -1,0 +1,38 @@
+<!-- Dashboard View -->
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Panel de Control</h1>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card-action" onclick="app.navigate('courses')">
+            <i class="fas fa-book-open"></i>
+            <h3>Cursos</h3>
+            <p>Crea y gestiona tus cursos</p>
+        </div>
+
+        <div class="card-action" onclick="app.navigate('groups')">
+            <i class="fas fa-users"></i>
+            <h3>Grupos</h3>
+            <p>Organiza estudiantes en grupos</p>
+        </div>
+
+        <div class="card-action" onclick="app.navigate('tasks')">
+            <i class="fas fa-tasks"></i>
+            <h3>Tareas</h3>
+            <p>Crea y asigna tareas a tus estudiantes</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = currentUser.name;
+        const navName = document.getElementById('navUserName');
+        if (navName) navName.textContent = currentUser.name;
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
+    }
+</script>

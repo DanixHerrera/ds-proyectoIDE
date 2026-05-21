@@ -1,0 +1,61 @@
+<!-- Create Course View -->
+<div class="dashboard-container">
+    <div id="alertContainer"></div>
+
+    <div class="form-container">
+        <h2>Crear Nuevo Curso</h2>
+        <form id="createCourseForm">
+            <div class="form-group-custom">
+                <label for="courseName">Nombre del Curso *</label>
+                <input type="text" id="courseName" placeholder="Ej: Introducción a Programación" required>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="courseCode">Código del Curso *</label>
+                <input type="text" id="courseCode" placeholder="Ej: CS101" required>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="courseDescription">Descripción *</label>
+                <textarea id="courseDescription" placeholder="Describe el contenido y objetivos del curso" required></textarea>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="courseSemester">Semestre/Período *</label>
+                <input type="text" id="courseSemester" placeholder="Ej: 2024-1" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit"> Crear Curso
+                </button>
+                <button type="button" class="btn-cancel" onclick="app.navigate('courses')"> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = currentUser.name;
+        const navName = document.getElementById('navUserName');
+        if (navName) navName.textContent = currentUser.name;
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
+    }
+
+    document.getElementById('createCourseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const courseData = {
+            name: document.getElementById('courseName').value,
+            code: document.getElementById('courseCode').value,
+            description: document.getElementById('courseDescription').value,
+            semester: document.getElementById('courseSemester').value
+        };
+
+        courses_module.createCourse(courseData);
+    });
+</script>

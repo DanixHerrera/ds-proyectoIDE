@@ -1,0 +1,89 @@
+<!-- Create Task View -->
+<div class="dashboard-container">
+    <div id="alertContainer"></div>
+
+    <div class="form-container">
+        <h2>Crear Nueva Tarea</h2>
+        <form id="createTaskForm">
+            <div class="form-group-custom">
+                <label for="taskTitle">Título de la Tarea *</label>
+                <input type="text" id="taskTitle" placeholder="Ej: Implementar algoritmo de ordenamiento" required>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="taskCourse">Curso *</label>
+                <select id="taskCourse" required>
+                    <option value="">Seleccionar curso</option>
+                </select>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="taskGroup">Grupo</label>
+                <select id="taskGroup">
+                    <option value="">Todos los estudiantes del curso</option>
+                </select>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="taskDescription">Descripción *</label>
+                <textarea id="taskDescription" placeholder="Detalla los requisitos, objetivos y evaluación de la tarea" required></textarea>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="taskDueDate">Fecha de Vencimiento *</label>
+                <input type="datetime-local" id="taskDueDate" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Crear Tarea
+                </button>
+                <button type="button" class="btn-cancel" onclick="app.navigate('tasks')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = currentUser.name;
+        const navName = document.getElementById('navUserName');
+        if (navName) navName.textContent = currentUser.name;
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
+    }
+
+    function loadCoursesForTaskSelect() {
+        const courses = courses_module.getUserCourses();
+        const select = document.getElementById('taskCourse');
+        select.innerHTML = '<option value="">Seleccionar curso</option>' +
+            courses.map(course => `<option value="${course.id}">${course.name}</option>`).join('');
+    }
+
+    function loadGroupsForTaskSelect() {
+        const groups = groups_module.getUserGroups();
+        const select = document.getElementById('taskGroup');
+        select.innerHTML = '<option value="">Todos los estudiantes del curso</option>' +
+            groups.map(group => `<option value="${group.id}">${group.name}</option>`).join('');
+    }
+
+    loadCoursesForTaskSelect();
+    loadGroupsForTaskSelect();
+
+    document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const taskData = {
+            title: document.getElementById('taskTitle').value,
+            courseId: document.getElementById('taskCourse').value,
+            groupId: document.getElementById('taskGroup').value || null,
+            description: document.getElementById('taskDescription').value,
+            dueDate: document.getElementById('taskDueDate').value,
+        };
+
+        tasks_module.createTask(taskData);
+    });
+</script>

@@ -1,0 +1,98 @@
+<!-- Groups View -->
+<div class="dashboard-container">
+    <div id="alertContainer"></div>
+
+    <div class="section-container">
+        <div class="section-header">
+            <h2>Mis Grupos</h2>
+            <button class="btn-primary-custom" onclick="app.navigate('create-group')">
+                <i class="fas fa-plus"></i> Nuevo Grupo
+            </button>
+        </div>
+
+        <div id="groupsFilterContainer" style="margin-bottom: 20px;">
+            <label for="courseFilterGroups" style="font-weight: 600; margin-right: 10px;color: black;">Filtrar por Curso:</label>
+            <select id="courseFilterGroups" style="padding: 8px 12px; border: 2px solid #a9adb3; border-radius: 6px;">
+                <option value="">Todos los cursos</option>
+            </select>
+        </div>
+
+        <div id="groupsListContainer">
+            <div class="table-responsive-custom">
+                <table class="table-custom" id="groupsTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre del Grupo</th>
+                            <th>Curso</th>
+                            <th>Descripción</th>
+                            <th>Estudiantes</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="groupsTableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyGroupsState" class="empty-state hidden">
+                <h3>No hay grupos aún</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = currentUser.name;
+        const navName = document.getElementById('navUserName');
+        if (navName) navName.textContent = currentUser.name;
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
+    }
+
+    function loadGroups() {
+        const groups = groups_module.getUserGroups();
+        const tbody = document.getElementById('groupsTableBody');
+        const emptyState = document.getElementById('emptyGroupsState');
+
+        if (groups.length === 0) {
+            tbody.innerHTML = '';
+            emptyState.classList.remove('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+            tbody.innerHTML = groups.map(group => `
+                <tr>
+                    <td><strong>${group.name}</strong></td>
+                    <td>${group.courseName || 'N/A'}</td>
+                    <td>${group.description}</td>
+                    <td>${group.studentCount || 0}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="app.navigate('group-detail', ${group.id})">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            <button class="btn-delete" onclick="groups_module.deleteGroup(${group.id})">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    function loadCoursesFilter() {
+        const courses = courses_module.getUserCourses();
+        const select = document.getElementById('courseFilterGroups');
+        select.innerHTML = '<option value="">Todos los cursos</option>' +
+            courses.map(course => `<option value="${course.id}">${course.name}</option>`).join('');
+    }
+
+    loadCoursesFilter();
+    loadGroups();
+
+    document.getElementById('courseFilterGroups').addEventListener('change', function() {
+        loadGroups();
+    });
+</script>

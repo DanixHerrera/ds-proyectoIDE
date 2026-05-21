@@ -1,0 +1,73 @@
+<!-- Create Group View -->
+<div class="dashboard-container">
+    <div id="alertContainer"></div>
+
+    <div class="form-container">
+        <h2>Crear Nuevo Grupo</h2>
+        <form id="createGroupForm">
+            <div class="form-group-custom">
+                <label for="groupName">Nombre del Grupo *</label>
+                <input type="text" id="groupName" placeholder="Ej: Grupo A - Equipo 1" required>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="groupCourse">Curso *</label>
+                <select id="groupCourse" required>
+                    <option value="">Seleccionar curso</option>
+                </select>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="groupDescription">Descripción</label>
+                <textarea id="groupDescription" placeholder="Descripción opcional del grupo"></textarea>
+            </div>
+
+            <div class="form-group-custom">
+                <label for="groupCapacity">Capacidad máxima de estudiantes</label>
+                <input type="number" id="groupCapacity" placeholder="Ej: 30" min="1">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Crear Grupo
+                </button>
+                <button type="button" class="btn-cancel" onclick="app.navigate('groups')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = currentUser.name;
+        const navName = document.getElementById('navUserName');
+        if (navName) navName.textContent = currentUser.name;
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
+    }
+
+    function loadCoursesForSelect() {
+        const courses = courses_module.getUserCourses();
+        const select = document.getElementById('groupCourse');
+        select.innerHTML = '<option value="">Seleccionar curso</option>' +
+            courses.map(course => `<option value="${course.id}">${course.name}</option>`).join('');
+    }
+
+    loadCoursesForSelect();
+
+    document.getElementById('createGroupForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const groupData = {
+            name: document.getElementById('groupName').value,
+            courseId: document.getElementById('groupCourse').value,
+            description: document.getElementById('groupDescription').value,
+            capacity: parseInt(document.getElementById('groupCapacity').value) || null
+        };
+
+        groups_module.createGroup(groupData);
+    });
+</script>
