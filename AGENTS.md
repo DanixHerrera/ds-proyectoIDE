@@ -1,10 +1,5 @@
 # AGENTS.md — StudentIDE Platform
 
-> Este archivo es leído por GitHub Copilot Agent **antes de tocar cualquier archivo**.
-> Define las reglas, convenciones y restricciones del proyecto completo.
-> Cada subcarpeta puede tener su propio `AGENTS.md` que extiende este.
-
----
 
 ## 1. Descripción del proyecto
 
@@ -222,14 +217,14 @@ RF-21 (trabajo colaborativo simultáneo)
 
 ---
 
-## 9. Lo que Copilot NO debe hacer
+## 9. NO debe hacer
 
-- ❌ No inventar endpoints que no estén en `api-contracts.md`.
-- ❌ No usar HTTP plano, siempre HTTPS.
-- ❌ No concatenar strings en queries SQL (usar prepared statements).
-- ❌ No almacenar passwords en texto plano ni con MD5/SHA-1.
-- ❌ No loguear tokens JWT, passwords ni datos personales.
-- ❌ No hardcodear la URL del backend; usar variables de configuración.
-- ❌ No omitir la validación de firma digital al abrir archivos (RF-14, RF-15).
-- ❌ No permitir que el IDE use el intérprete Python del sistema; solo el empaquetado.
-- ❌ No modificar código de estudiantes desde el portal del profesor (solo lectura).
+- No inventar endpoints que no estén en `api-contracts.md`.
+-  No usar HTTP plano, siempre HTTPS.
+-  No concatenar strings en queries SQL (usar prepared statements).
+-  No almacenar passwords en texto plano ni con MD5/SHA-1.
+-  No loguear tokens JWT, passwords ni datos personales.
+-  No hardcodear la URL del backend; usar variables de configuración.
+-  No omitir la validación de firma digital al abrir archivos (RF-14, RF-15).
+-  No permitir que el IDE use el intérprete Python del sistema; solo el empaquetado.
+-  No modificar código de estudiantes desde el portal del profesor (solo lectura).
