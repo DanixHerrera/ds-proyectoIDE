@@ -5,9 +5,22 @@
     <div class="section-container">
         <div class="section-header">
             <h2>Mis Grupos</h2>
-            <button class="btn-primary-custom" onclick="app.navigate('create-group')">
-                <i class="fas fa-plus"></i> Nuevo Grupo
-            </button>
+            <div class="section-header-actions">
+                <div class="students-actions">
+                    <button class="btn-students" onclick="manageGroupStudents('add')">
+                        <i class="fas fa-user-plus"></i> Agregar estudiantes
+                    </button>
+                    <button class="btn-students" onclick="manageGroupStudents('remove')">
+                        <i class="fas fa-user-minus"></i> Eliminar estudiantes
+                    </button>
+                    <button class="btn-students" onclick="viewGroupStudents()">
+                        <i class="fas fa-users"></i> Ver lista de estudiantes
+                    </button>
+                </div>
+                <button class="btn-primary-custom" onclick="app.navigate('create-group')">
+                    <i class="fas fa-plus"></i> Nuevo Grupo
+                </button>
+            </div>
         </div>
 
         <div id="groupsFilterContainer" style="margin-bottom: 20px;">
@@ -70,7 +83,7 @@
                     <td>
                         <div class="action-buttons">
                             <button class="btn-edit" onclick="app.navigate('group-detail', ${group.id})">
-                                <i class="fas fa-eye"></i> Ver
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
                             </button>
                             <button class="btn-delete" onclick="groups_module.deleteGroup(${group.id})">
                                 <i class="fas fa-trash"></i> Eliminar
@@ -80,6 +93,15 @@
                 </tr>
             `).join('');
         }
+    }
+
+    function manageGroupStudents(action) {
+        const actionText = action === 'add' ? 'agregar' : 'eliminar';
+        app.showAlert(`Módulo de estudiantes pendiente: pronto podrás ${actionText} estudiantes en grupos.`, 'info');
+    }
+
+    function viewGroupStudents() {
+        app.showAlert('Módulo de estudiantes pendiente: pronto podrás ver la lista de estudiantes de grupos.', 'info');
     }
 
     function loadCoursesFilter() {

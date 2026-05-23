@@ -1,9 +1,9 @@
-<!-- Create Task View -->
+<!-- Task Form View -->
 <div class="dashboard-container">
     <div id="alertContainer"></div>
 
     <div class="form-container">
-        <h2>Crear Nueva Tarea</h2>
+        <h2 id="taskFormTitle">Crear Nueva Tarea</h2>
         <form id="createTaskForm">
             <div class="form-group-custom">
                 <label for="taskTitle">Título de la Tarea *</label>
@@ -35,8 +35,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-submit">Crear Tarea
-                </button>
+                <button type="submit" class="btn-submit" id="submitTaskBtn">Crear Tarea</button>
                 <button type="button" class="btn-cancel" onclick="app.navigate('tasks')">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
@@ -73,6 +72,26 @@
     loadCoursesForTaskSelect();
     loadGroupsForTaskSelect();
 
+    const editTaskId = app.currentParams ? parseInt(app.currentParams) : null;
+    const taskTitle = document.getElementById('taskFormTitle');
+    const taskSubmit = document.getElementById('submitTaskBtn');
+
+    if (editTaskId) {
+        const task = tasks_module.getTaskById(editTaskId);
+        if (!task) {
+            app.showAlert('Tarea no encontrada', 'error');
+            app.navigate('tasks');
+        } else {
+            taskTitle.textContent = 'Editar Tarea';
+            taskSubmit.textContent = 'Actualizar Tarea';
+            document.getElementById('taskTitle').value = task.title || '';
+            document.getElementById('taskCourse').value = String(task.courseId || '');
+            document.getElementById('taskGroup').value = task.groupId ? String(task.groupId) : '';
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskDueDate').value = task.dueDate ? task.dueDate.slice(0, 16) : '';
+        }
+    }
+
     document.getElementById('createTaskForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -84,6 +103,11 @@
             dueDate: document.getElementById('taskDueDate').value,
         };
 
-        tasks_module.createTask(taskData);
+        if (editTaskId) {
+            tasks_module.updateTask(editTaskId, taskData);
+            setTimeout(() => app.navigate('tasks'), 1000);
+        } else {
+            tasks_module.createTask(taskData);
+        }
     });
 </script>

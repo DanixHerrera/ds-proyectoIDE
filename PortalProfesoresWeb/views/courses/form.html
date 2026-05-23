@@ -1,9 +1,9 @@
-<!-- Create Course View -->
+<!-- Course Form View -->
 <div class="dashboard-container">
     <div id="alertContainer"></div>
 
     <div class="form-container">
-        <h2>Crear Nuevo Curso</h2>
+        <h2 id="courseFormTitle">Crear Nuevo Curso</h2>
         <form id="createCourseForm">
             <div class="form-group-custom">
                 <label for="courseName">Nombre del Curso *</label>
@@ -16,8 +16,8 @@
             </div>
 
             <div class="form-group-custom">
-                <label for="courseDescription">Descripción *</label>
-                <textarea id="courseDescription" placeholder="Describe el contenido y objetivos del curso" required></textarea>
+                <label for="courseDescription">Descripción</label>
+                <textarea id="courseDescription" placeholder="Describe el contenido y objetivos del curso"></textarea>
             </div>
 
             <div class="form-group-custom">
@@ -26,8 +26,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-submit"> Crear Curso
-                </button>
+                <button type="submit" class="btn-submit" id="submitCourseBtn">Crear Curso</button>
                 <button type="button" class="btn-cancel" onclick="app.navigate('courses')"> Cancelar
                 </button>
             </div>
@@ -46,6 +45,25 @@
         if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
     }
 
+    const editCourseId = app.currentParams ? parseInt(app.currentParams) : null;
+    const courseTitle = document.getElementById('courseFormTitle');
+    const courseSubmit = document.getElementById('submitCourseBtn');
+
+    if (editCourseId) {
+        const course = courses_module.getCourseById(editCourseId);
+        if (!course) {
+            app.showAlert('Curso no encontrado', 'error');
+            app.navigate('courses');
+        } else {
+            courseTitle.textContent = 'Editar Curso';
+            courseSubmit.textContent = 'Actualizar Curso';
+            document.getElementById('courseName').value = course.name || '';
+            document.getElementById('courseCode').value = course.code || '';
+            document.getElementById('courseDescription').value = course.description || '';
+            document.getElementById('courseSemester').value = course.semester || '';
+        }
+    }
+
     document.getElementById('createCourseForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -56,6 +74,11 @@
             semester: document.getElementById('courseSemester').value
         };
 
-        courses_module.createCourse(courseData);
+        if (editCourseId) {
+            courses_module.updateCourse(editCourseId, courseData);
+            setTimeout(() => app.navigate('courses'), 1000);
+        } else {
+            courses_module.createCourse(courseData);
+        }
     });
 </script>

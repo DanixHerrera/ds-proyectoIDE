@@ -9,10 +9,13 @@ const app = {
         dashboard: 'views/dashboard/dashboard.html',
         courses: 'views/courses/list.html',
         'create-course': 'views/courses/form.html',
+        'course-detail': 'views/courses/form.html',
         groups: 'views/groups/list.html',
         'create-group': 'views/groups/form.html',
+        'group-detail': 'views/groups/form.html',
         tasks: 'views/tasks/list.html',
-        'create-task': 'views/tasks/form.html'
+        'create-task': 'views/tasks/form.html',
+        'task-detail': 'views/tasks/form.html'
     },
 
     async init() {
@@ -42,6 +45,7 @@ const app = {
 
     navigate(viewName, params = null) {
         const publicViews = ['welcome', 'login', 'register'];
+        this.currentParams = params;
 
         if (!publicViews.includes(viewName) && !auth.isAuthenticated()) {
             this.navigate('welcome');
@@ -54,8 +58,6 @@ const app = {
             appDiv.innerHTML = this.views[viewName];
             this.currentView = viewName;
             this.executeViewScripts();
-
-            // Toggle navbar visibility for welcome/login/register
             try {
                 const nav = document.querySelector('.navbar-app.modern-nav');
                 if (nav) {

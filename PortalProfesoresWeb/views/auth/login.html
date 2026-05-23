@@ -6,6 +6,7 @@
         </h1>
     </div>
     <div class="auth-right">
+        <div id="alertContainer"></div>
         <div class="auth-form">
             <h2>Iniciar Sesión</h2>
             <form id="loginForm">
@@ -29,8 +30,24 @@
 <script>
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
+        const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
+
+        if (!email && !password) {
+            app.showAlert('Debes completar correo y contraseña', 'error');
+            return;
+        }
+
+        if (!email) {
+            app.showAlert('Falta completar el correo electrónico', 'error');
+            return;
+        }
+
+        if (!password) {
+            app.showAlert('Falta completar la contraseña', 'error');
+            return;
+        }
+
         auth.login(email, password);
     });
 </script>

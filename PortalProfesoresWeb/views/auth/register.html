@@ -6,6 +6,7 @@
         </h1>
     </div>
     <div class="auth-right">
+        <div id="alertContainer"></div>
         <div class="auth-form">
             <h2>Crear Cuenta</h2>
             <form id="registerForm">
@@ -20,6 +21,18 @@
                 <div class="form-group">
                     <label for="registerPassword">Contraseña</label>
                     <input type="password" id="registerPassword" placeholder="" required>
+                    <div class="password-strength-wrapper">
+                        <div class="password-strength-header">
+                            <span>Seguridad de contraseña</span>
+                            <span id="passwordStrengthLabel" class="strength-label strength-empty">Sin evaluar</span>
+                        </div>
+                        <div class="password-strength-track" aria-hidden="true">
+                            <div id="passwordStrengthBar" class="password-strength-bar"></div>
+                        </div>
+                        <small id="passwordStrengthHint" class="password-strength-hint">
+                            Debe incluir: 8+ caracteres, mayúscula, minúscula, número y carácter especial.
+                        </small>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="registerConfirmPassword">Confirmar Contraseña</label>
@@ -35,15 +48,82 @@
 </div>
 
 <script>
+    const registerPasswordInput = document.getElementById('registerPassword');
+    const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+    const passwordStrengthLabel = document.getElementById('passwordStrengthLabel');
+    const passwordStrengthHint = document.getElementById('passwordStrengthHint');
+
+    function updatePasswordStrength(password) {
+        const value = password || '';
+        const totalRules = 5;
+        const missingRules = auth.getPasswordValidationErrors(value);
+        const validRules = totalRules - missingRules.length;
+        const percent = value.length === 0 ? 0 : Math.round((validRules / totalRules) * 100);
+
+        let levelClass = 'strength-empty';
+        let levelText = 'Sin evaluar';
+
+        if (value.length > 0 && percent <= 40) {
+            levelClass = 'strength-weak';
+            levelText = 'Débil';
+        } else if (percent > 40 && percent < 100) {
+            levelClass = 'strength-medium';
+            levelText = 'Media';
+        } else if (percent === 100) {
+            levelClass = 'strength-strong';
+            levelText = 'Fuerte';
+        }
+
+        passwordStrengthBar.style.width = `${percent}%`;
+        passwordStrengthBar.className = `password-strength-bar ${levelClass}`;
+        passwordStrengthLabel.className = `strength-label ${levelClass}`;
+        passwordStrengthLabel.textContent = levelText;
+
+        if (value.length === 0) {
+            passwordStrengthHint.textContent = 'Debe incluir: 8+ caracteres, mayúscula, minúscula, número y carácter especial.';
+            return;
+        }
+
+        if (missingRules.length === 0) {
+            passwordStrengthHint.textContent = 'Excelente: tu contraseña cumple todos los requisitos.';
+            return;
+        }
+
+        passwordStrengthHint.textContent = `Falta: ${missingRules.join(', ')}.`;
+    }
+
+    registerPasswordInput.addEventListener('input', function(e) {
+        updatePasswordStrength(e.target.value);
+    });
+
+    updatePasswordStrength(registerPasswordInput.value);
+
     document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
+        const name = document.getElementById('registerName').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
         const password = document.getElementById('registerPassword').value;
         const confirmPassword = document.getElementById('registerConfirmPassword').value;
 
+        const missingFields = [];
+        if (!name) missingFields.push('nombre completo');
+        if (!email) missingFields.push('correo electrónico');
+        if (!password) missingFields.push('contraseña');
+        if (!confirmPassword) missingFields.push('confirmación de contraseña');
+
+        if (missingFields.length > 0) {
+            app.showAlert(`Falta completar: ${missingFields.join(', ')}`, 'error');
+            return;
+        }
+
         if (password !== confirmPassword) {
             app.showAlert('Las contraseñas no coinciden', 'error');
+            return;
+        }
+
+        const passwordErrors = auth.getPasswordValidationErrors(password);
+        if (passwordErrors.length > 0) {
+            app.showAlert(`Contraseña débil: ${passwordErrors.join(', ')}`, 'error');
             return;
         }
 

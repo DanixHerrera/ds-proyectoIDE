@@ -70,7 +70,13 @@ const groups_module = {
             return;
         }
 
-        Object.assign(group, groupData);
+        const course = data.courses.find(c => c.id === parseInt(groupData.courseId));
+        Object.assign(group, {
+            ...groupData,
+            courseId: parseInt(groupData.courseId),
+            courseName: course ? course.name : group.courseName,
+            capacity: groupData.capacity || null
+        });
         saveData(data);
 
         app.showAlert('Grupo actualizado exitosamente', 'success');

@@ -56,6 +56,12 @@ const courses_module = {
             return;
         }
 
+        const duplicateCode = data.courses.find(c => c.code === courseData.code && c.professorId === course.professorId && c.id !== id);
+        if (duplicateCode) {
+            app.showAlert('Ya existe un curso con ese código', 'error');
+            return;
+        }
+
         Object.assign(course, courseData);
         saveData(data);
 

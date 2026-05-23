@@ -9,18 +9,54 @@ const auth = {
         }
     },
 
+    getPasswordValidationErrors(password) {
+        const errors = [];
+
+        if (!password || password.length < 8) {
+            errors.push('mínimo 8 caracteres');
+        }
+        if (!/[A-Z]/.test(password || '')) {
+            errors.push('al menos una letra mayúscula');
+        }
+        if (!/[a-z]/.test(password || '')) {
+            errors.push('al menos una letra minúscula');
+        }
+        if (!/[0-9]/.test(password || '')) {
+            errors.push('al menos un número');
+        }
+        if (!/[^A-Za-z0-9]/.test(password || '')) {
+            errors.push('al menos un carácter especial');
+        }
+
+        return errors;
+    },
+
     register(name, email, password) {
         const data = getStoredData();
 
-        if (data.users.some(u => u.email === email)) {
+        const cleanName = (name || '').trim();
+        const cleanEmail = (email || '').trim();
+
+        if (!cleanName || !cleanEmail || !password) {
+            app.showAlert('Debes completar todos los campos del registro', 'error');
+            return;
+        }
+
+        const passwordErrors = this.getPasswordValidationErrors(password);
+        if (passwordErrors.length > 0) {
+            app.showAlert(`Contraseña débil: ${passwordErrors.join(', ')}`, 'error');
+            return;
+        }
+
+        if (data.users.some(u => u.email.toLowerCase() === cleanEmail.toLowerCase())) {
             app.showAlert('El email ya está registrado', 'error');
             return;
         }
 
         const newUser = {
             id: data.users.length + 1,
-            name: name,
-            email: email,
+            name: cleanName,
+            email: cleanEmail,
             password: password
         };
 
@@ -33,7 +69,24 @@ const auth = {
 
     login(email, password) {
         const data = getStoredData();
-        const user = data.users.find(u => u.email === email && u.password === password);
+        const cleanEmail = (email || '').trim();
+
+        if (!cleanEmail && !password) {
+            app.showAlert('Debes ingresar correo y contraseña', 'error');
+            return;
+        }
+
+        if (!cleanEmail) {
+            app.showAlert('Debes ingresar tu correo electrónico', 'error');
+            return;
+        }
+
+        if (!password) {
+            app.showAlert('Debes ingresar tu contraseña', 'error');
+            return;
+        }
+
+        const user = data.users.find(u => u.email.toLowerCase() === cleanEmail.toLowerCase() && u.password === password);
 
         if (!user) {
             app.showAlert('Email o contraseña incorrectos', 'error');

@@ -1,9 +1,9 @@
-<!-- Create Group View -->
+<!-- Group Form View -->
 <div class="dashboard-container">
     <div id="alertContainer"></div>
 
     <div class="form-container">
-        <h2>Crear Nuevo Grupo</h2>
+        <h2 id="groupFormTitle">Crear Nuevo Grupo</h2>
         <form id="createGroupForm">
             <div class="form-group-custom">
                 <label for="groupName">Nombre del Grupo *</label>
@@ -28,8 +28,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-submit">Crear Grupo
-                </button>
+                <button type="submit" class="btn-submit" id="submitGroupBtn">Crear Grupo</button>
                 <button type="button" class="btn-cancel" onclick="app.navigate('groups')">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
@@ -58,6 +57,25 @@
 
     loadCoursesForSelect();
 
+    const editGroupId = app.currentParams ? parseInt(app.currentParams) : null;
+    const groupTitle = document.getElementById('groupFormTitle');
+    const groupSubmit = document.getElementById('submitGroupBtn');
+
+    if (editGroupId) {
+        const group = groups_module.getGroupById(editGroupId);
+        if (!group) {
+            app.showAlert('Grupo no encontrado', 'error');
+            app.navigate('groups');
+        } else {
+            groupTitle.textContent = 'Editar Grupo';
+            groupSubmit.textContent = 'Actualizar Grupo';
+            document.getElementById('groupName').value = group.name || '';
+            document.getElementById('groupCourse').value = String(group.courseId || '');
+            document.getElementById('groupDescription').value = group.description || '';
+            document.getElementById('groupCapacity').value = group.capacity || '';
+        }
+    }
+
     document.getElementById('createGroupForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -68,6 +86,11 @@
             capacity: parseInt(document.getElementById('groupCapacity').value) || null
         };
 
-        groups_module.createGroup(groupData);
+        if (editGroupId) {
+            groups_module.updateGroup(editGroupId, groupData);
+            setTimeout(() => app.navigate('groups'), 1000);
+        } else {
+            groups_module.createGroup(groupData);
+        }
     });
 </script>

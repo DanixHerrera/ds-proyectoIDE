@@ -89,7 +89,13 @@ const tasks_module = {
             return;
         }
 
-        Object.assign(task, taskData);
+        const course = data.courses.find(c => c.id === parseInt(taskData.courseId));
+        Object.assign(task, {
+            ...taskData,
+            courseId: parseInt(taskData.courseId),
+            courseName: course ? course.name : task.courseName,
+            groupId: taskData.groupId ? parseInt(taskData.groupId) : null
+        });
         task.updatedAt = new Date().toISOString();
         saveData(data);
 
