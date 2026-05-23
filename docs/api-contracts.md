@@ -1,9 +1,5 @@
 # api-contracts.md — Contratos de API REST
 
-> **Referencia oficial** de todos los endpoints del servidor LAMP (`backend-api/`).
-> Todo cliente (`student-ide/`, `frontend-profesor/`) debe ceñirse a estos contratos.
-> Copilot no debe inventar rutas. Si falta un endpoint, crear un issue antes de implementarlo.
-
 ---
 
 ## Convenciones generales
