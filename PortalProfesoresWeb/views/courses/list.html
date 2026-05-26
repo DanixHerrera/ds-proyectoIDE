@@ -5,22 +5,9 @@
     <div class="section-container">
         <div class="section-header">
             <h2>Mis Cursos</h2>
-            <div class="section-header-actions">
-                <div class="students-actions">
-                    <button class="btn-students" onclick="manageCourseStudents('add')">
-                        <i class="fas fa-user-plus"></i> Agregar estudiantes
-                    </button>
-                    <button class="btn-students" onclick="manageCourseStudents('remove')">
-                        <i class="fas fa-user-minus"></i> Eliminar estudiantes
-                    </button>
-                    <button class="btn-students" onclick="viewCourseStudents()">
-                        <i class="fas fa-users"></i> Ver lista de estudiantes
-                    </button>
-                </div>
-                <button class="btn-primary-custom" onclick="app.navigate('create-course')">
-                    <i class="fas fa-plus"></i> Nuevo Curso
-                </button>
-            </div>
+            <button class="btn-primary-custom" onclick="app.navigate('create-course')">
+                <i class="fas fa-plus"></i> Nuevo Curso
+            </button>
         </div>
 
         <div id="coursesListContainer">
@@ -69,16 +56,16 @@
             emptyState.classList.add('hidden');
             tbody.innerHTML = courses.map(course => `
                 <tr>
-                    <td><strong>${course.name}</strong></td>
+                    <td><span class="item-link" role="button" tabindex="0" onclick="app.navigate('course-detail', { id: ${course.id}, mode: 'view' })">${course.name}</span></td>
                     <td>${course.code}</td>
                     <td>${course.description}</td>
                     <td>${course.studentCount || 0}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-edit" onclick="app.navigate('course-detail', ${course.id})">
+                            <button class="btn-edit" onclick="event.stopPropagation(); app.navigate('create-course', { id: ${course.id}, mode: 'edit' })">
                                 <i class="fa-solid fa-pen-to-square"></i> Editar
                             </button>
-                            <button class="btn-delete" onclick="courses_module.deleteCourse(${course.id})">
+                            <button class="btn-delete" onclick="event.stopPropagation(); courses_module.deleteCourse(${course.id})">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </div>
@@ -86,15 +73,6 @@
                 </tr>
             `).join('');
         }
-    }
-
-    function manageCourseStudents(action) {
-        const actionText = action === 'add' ? 'agregar' : 'eliminar';
-        app.showAlert(`Módulo de estudiantes pendiente: pronto podrás ${actionText} estudiantes en cursos.`, 'info');
-    }
-
-    function viewCourseStudents() {
-        app.showAlert('Módulo de estudiantes pendiente: pronto podrás ver la lista de estudiantes de cursos.', 'info');
     }
 
     loadCourses();

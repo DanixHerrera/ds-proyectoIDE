@@ -1,0 +1,66 @@
+<!-- Task Detail View -->
+<div class="dashboard-container">
+    <div id="alertContainer"></div>
+
+    <div class="form-container">
+        <h2 id="taskDetailTitle">Detalle de la Tarea</h2>
+        <div id="taskDetailPanel" class="item-detail-panel"></div>
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="app.navigate('tasks')">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+            <button type="button" class="btn-submit" id="editTaskFromDetail">Editar Tarea</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = currentUser.name;
+        const navName = document.getElementById('navUserName');
+        if (navName) navName.textContent = currentUser.name;
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
+    }
+
+    const taskId = app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
+    const task = taskId ? tasks_module.getTaskById(taskId) : null;
+
+    if (!task) {
+        app.showAlert('Tarea no encontrada', 'error');
+        app.navigate('tasks');
+    } else {
+        const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+        const group = task.groupId ? groups_module.getGroupById(task.groupId) : null;
+        const groupDisplay = group ? group.name : 'Todos los estudiantes del curso';
+        var attachmentsHtml = '';
+        if (task.attachments && Array.isArray(task.attachments) && task.attachments.length > 0) {
+            attachmentsHtml = '<div class="attachments-section"><h4>Archivos adjuntos</h4><ul>' +
+                task.attachments.map(function(a) {
+                    return '<li><a href="data:' + a.type + ';base64,' + a.data + '" download="' + a.name + '">' + a.name + '</a></li>';
+                }).join('') +
+                '</ul></div>';
+        }
+
+        document.getElementById('taskDetailPanel').innerHTML = `
+            <div class="item-detail-header">
+                <div>
+                    <p class="item-detail-kicker">Tarea seleccionada</p>
+                    <h3>${task.title}</h3>
+                </div>
+            </div>
+            <div class="item-detail-grid">
+                <div class="item-detail-card"><span>Curso</span><strong>${task.courseName || 'N/A'}</strong></div>
+                <div class="item-detail-card"><span>Grupo</span><strong>${groupDisplay}</strong></div>
+                <div class="item-detail-card"><span>Fecha de vencimiento</span><strong>${dueDate ? dueDate.toLocaleString('es-ES') : 'N/A'}</strong></div>
+                <div class="item-detail-card"><span>Descripción</span><strong>${task.description || 'Sin descripción'}</strong></div>
+            </div>
+            ${attachmentsHtml}
+        `;
+
+        document.getElementById('editTaskFromDetail').addEventListener('click', function() {
+            app.navigate('create-task', { id: taskId, mode: 'edit' });
+        });
+    }

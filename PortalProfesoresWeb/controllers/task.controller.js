@@ -68,6 +68,7 @@ const tasks_module = {
             title: taskData.title,
             description: taskData.description,
             dueDate: taskData.dueDate,
+            attachments: taskData.attachments && Array.isArray(taskData.attachments) ? taskData.attachments : [],
             submissions: [],
             createdAt: new Date().toISOString()
         };
@@ -94,7 +95,8 @@ const tasks_module = {
             ...taskData,
             courseId: parseInt(taskData.courseId),
             courseName: course ? course.name : task.courseName,
-            groupId: taskData.groupId ? parseInt(taskData.groupId) : null
+            groupId: taskData.groupId ? parseInt(taskData.groupId) : null,
+            attachments: taskData.attachments && Array.isArray(taskData.attachments) ? taskData.attachments : task.attachments || []
         });
         task.updatedAt = new Date().toISOString();
         saveData(data);

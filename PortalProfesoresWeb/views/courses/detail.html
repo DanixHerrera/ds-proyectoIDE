@@ -1,0 +1,74 @@
+<!-- Course Detail View -->
+<div class="dashboard-container">
+    <div id="alertContainer"></div>
+
+    <div class="form-container">
+        <h2 id="courseDetailTitle">Detalle del Curso</h2>
+        <div id="courseDetailPanel" class="item-detail-panel"></div>
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="app.navigate('courses')">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+            <button type="button" class="btn-submit" id="editCourseFromDetail">Editar Curso</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = currentUser.name;
+        const navName = document.getElementById('navUserName');
+        if (navName) navName.textContent = currentUser.name;
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
+    }
+
+    const courseId = app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
+    const course = courseId ? courses_module.getCourseById(courseId) : null;
+
+    if (!course) {
+        app.showAlert('Curso no encontrado', 'error');
+        app.navigate('courses');
+    } else {
+        document.getElementById('courseDetailPanel').innerHTML = `
+            <div class="item-detail-header">
+                <div>
+                    <p class="item-detail-kicker">Curso seleccionado</p>
+                    <h3>${course.name}</h3>
+                </div>
+                <span class="item-detail-badge">${course.studentCount || 0} estudiantes</span>
+            </div>
+            <div class="item-detail-grid">
+                <div class="item-detail-card"><span>Código</span><strong>${course.code || 'N/A'}</strong></div>
+                <div class="item-detail-card"><span>Semestre</span><strong>${course.semester || 'N/A'}</strong></div>
+                <div class="item-detail-card"><span>Descripción</span><strong>${course.description || 'Sin descripción'}</strong></div>
+            </div>
+            <div class="item-detail-actions">
+                <button type="button" class="btn-students" onclick="manageCourseStudents('add')">
+                    <i class="fas fa-user-plus"></i> Agregar estudiantes
+                </button>
+                <button type="button" class="btn-students" onclick="manageCourseStudents('remove')">
+                    <i class="fas fa-user-minus"></i> Eliminar estudiantes
+                </button>
+                <button type="button" class="btn-students" onclick="viewCourseStudents()">
+                    <i class="fas fa-users"></i> Ver lista de estudiantes
+                </button>
+            </div>
+        `;
+
+        document.getElementById('editCourseFromDetail').addEventListener('click', function() {
+            app.navigate('create-course', { id: courseId, mode: 'edit' });
+        });
+    }
+
+    function manageCourseStudents(action) {
+        const actionText = action === 'add' ? 'agregar' : 'eliminar';
+        app.showAlert(`Módulo de estudiantes pendiente: pronto podrás ${actionText} estudiantes desde este curso.`, 'info');
+    }
+
+    function viewCourseStudents() {
+        app.showAlert('Módulo de estudiantes pendiente: pronto podrás ver la lista de estudiantes desde este curso.', 'info');
+    }
+</script>

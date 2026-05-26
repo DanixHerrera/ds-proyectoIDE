@@ -45,7 +45,8 @@
         if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
     }
 
-    const editCourseId = app.currentParams ? parseInt(app.currentParams) : null;
+    const courseParams = app.currentParams || null;
+    const editCourseId = courseParams ? parseInt(courseParams.id || courseParams) : null;
     const courseTitle = document.getElementById('courseFormTitle');
     const courseSubmit = document.getElementById('submitCourseBtn');
 

@@ -24,19 +24,45 @@ body {
 
 main#app {padding:28px 32px}
 
-/* Modern navbar */
+/* Navbar */
 .navbar-app.modern-nav {
     display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 28px;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));backdrop-filter: blur(6px);border-bottom:1px solid rgba(255,255,255,0.03);
 }
+.nav-left{flex:1 1 auto;display:flex;align-items:center;gap:12px}
 .navbar-app.modern-nav.nav-welcome .nav-right .nav-links,
 .navbar-app.modern-nav.nav-welcome .user-area {
     display: none !important;
 }
 .navbar-app .navbar-brand {display:flex;align-items:center;gap:12px;color:var(--accent);font-weight:700;font-size:1.05rem;text-decoration:none}
 .navbar-app .navbar-brand .fas {font-size:1.25rem}
-.nav-left{flex:1 1 auto}
 .nav-center{flex:1 1 auto;display:flex;justify-content:center}
 .nav-right{flex:0 0 auto;display:flex;align-items:center;gap:12px;margin-left:auto}
+
+.btn-back-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.05);
+    color: #e2e8f0;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-back-nav:hover:not(:disabled) {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+}
+
+.btn-back-nav:disabled,
+.btn-back-nav.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
 
 .user-area{display:flex;align-items:center;gap:10px}
 .user-avatar{width:44px;height:44px;border-radius:50%;background:rgba(214, 206, 206, 0.925);display:flex;align-items:center;justify-content:center;font-weight:700;color:#021;box-shadow:0 6px 20px rgba(12,23,40,0.6)}
@@ -46,7 +72,7 @@ main#app {padding:28px 32px}
 .btn-logout{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px 12px;border-radius:10px;cursor:pointer}
 .btn-logout:hover{background:rgba(255,255,255,0.03);color:#fff}
 
-/* Cards & Surfaces */
+/* Cards y Surfaces */
 .section-container, .form-container, .dashboard-container, .card-action {
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
     border-radius: var(--radius-lg);
@@ -385,6 +411,16 @@ main#app {padding:28px 32px}
     border-bottom: 2px solid var(--primary-color);
 }
 
+.attachments-section h4 {
+    color: #071425bb;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.attachments-section ul { list-style: disc; margin-left: 18px; color: #021; }
+
+.attachments-section a { color: #0b1220; text-decoration: underline; }
+
 .user-menu {
     display: flex;
     align-items: center;
@@ -608,18 +644,18 @@ main#app {padding:28px 32px}
 
 .btn-students {
     padding: 8px 12px;
-    border: 1px solid rgba(37, 99, 235, 0.25);
+    border: 1px solid rgba(37, 100, 235, 0.432);
     border-radius: 10px;
     cursor: pointer;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 625;
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     min-height: 38px;
-    background: rgba(37, 99, 235, 0.12);
-    color: #1d4ed8;
+    background: rgba(54, 105, 218, 0.123);
+    color: rgba(6, 112, 212, 0.795);
 }
 
 .btn-students:hover {
@@ -629,7 +665,6 @@ main#app {padding:28px 32px}
 .btn-edit {
     background: rgba(6, 112, 212, 0.795);
     color: #e6fbff;
-    border-color: rgba(126, 231, 255, 0.28);
 }
 
 .btn-edit:hover {
@@ -644,6 +679,107 @@ main#app {padding:28px 32px}
 
 .btn-delete:hover {
     background: rgba(196, 12, 12, 0.452);
+}
+
+.item-link {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 700;
+    color: #0f172a;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.item-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: rgba(6, 182, 212, 0.6);
+}
+
+.item-detail-panel {
+    margin-bottom: 20px;
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95));
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.item-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.item-detail-kicker {
+    margin: 0 0 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.item-detail-header h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.35rem;
+}
+
+.item-detail-badge {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(6, 182, 212, 0.12);
+    color: #0f766e;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.item-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.item-detail-card {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.item-detail-card span {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.item-detail-card strong {
+    color: #0f172a;
+    font-size: 0.98rem;
+    line-height: 1.4;
+}
+
+.item-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.detail-note {
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+    color: #64748b;
 }
 
 /* ==================== Formularios ==================== */
@@ -707,7 +843,7 @@ main#app {padding:28px 32px}
 }
 
 .btn-submit {
-    background: rgba(20, 23, 230, 0.938);
+    background: rgba(24, 92, 156, 0.952);
     color: white;
     border: none;
     padding: 12px 40px;
@@ -720,11 +856,10 @@ main#app {padding:28px 32px}
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
 }
 
 .btn-cancel {
-    background: rgba(177, 24, 24, 0.712);
+    background: rgba(177, 24, 24, 0.836);
     color: #d7e6f7;
     border: none;
     padding: 12px 40px;

@@ -57,7 +57,8 @@
 
     loadCoursesForSelect();
 
-    const editGroupId = app.currentParams ? parseInt(app.currentParams) : null;
+    const groupParams = app.currentParams || null;
+    const editGroupId = groupParams ? parseInt(groupParams.id || groupParams) : null;
     const groupTitle = document.getElementById('groupFormTitle');
     const groupSubmit = document.getElementById('submitGroupBtn');
 

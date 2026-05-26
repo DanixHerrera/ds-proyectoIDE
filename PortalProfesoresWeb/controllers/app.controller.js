@@ -2,6 +2,7 @@
 const app = {
     currentView: 'welcome',
     views: {},
+    navigationHistory: [],
     viewPaths: {
         welcome: 'views/auth/welcome.html',
         login: 'views/auth/login.html',
@@ -9,13 +10,13 @@ const app = {
         dashboard: 'views/dashboard/dashboard.html',
         courses: 'views/courses/list.html',
         'create-course': 'views/courses/form.html',
-        'course-detail': 'views/courses/form.html',
+        'course-detail': 'views/courses/detail.html',
         groups: 'views/groups/list.html',
         'create-group': 'views/groups/form.html',
-        'group-detail': 'views/groups/form.html',
+        'group-detail': 'views/groups/detail.html',
         tasks: 'views/tasks/list.html',
         'create-task': 'views/tasks/form.html',
-        'task-detail': 'views/tasks/form.html'
+        'task-detail': 'views/tasks/detail.html'
     },
 
     async init() {
@@ -27,9 +28,9 @@ const app = {
         }
 
         if (auth.isAuthenticated()) {
-            this.navigate('dashboard');
+            this.navigate('dashboard', null, false);
         } else {
-            this.navigate('welcome');
+            this.navigate('welcome', null, false);
         }
     },
 
@@ -43,8 +44,16 @@ const app = {
         }
     },
 
-    navigate(viewName, params = null) {
+    navigate(viewName, params = null, addToHistory = true) {
         const publicViews = ['welcome', 'login', 'register'];
+
+        if (addToHistory && this.currentView && this.currentView !== viewName) {
+            this.navigationHistory.push({
+                viewName: this.currentView,
+                params: this.currentParams
+            });
+        }
+
         this.currentParams = params;
 
         if (!publicViews.includes(viewName) && !auth.isAuthenticated()) {
@@ -58,6 +67,7 @@ const app = {
             appDiv.innerHTML = this.views[viewName];
             this.currentView = viewName;
             this.executeViewScripts();
+            this.updateBackButtonState();
             try {
                 const nav = document.querySelector('.navbar-app.modern-nav');
                 if (nav) {
@@ -75,6 +85,28 @@ const app = {
         } else {
             console.error(`Vista ${viewName} no encontrada`);
         }
+    },
+
+    goBack() {
+        if (this.navigationHistory.length === 0) {
+            return;
+        }
+
+        const previous = this.navigationHistory.pop();
+        this.navigate(previous.viewName, previous.params, false);
+    },
+
+    updateBackButtonState() {
+        const backButton = document.getElementById('backButton');
+        if (!backButton) {
+            return;
+        }
+
+        const canGoBack = this.navigationHistory.length > 0;
+        backButton.disabled = !canGoBack;
+        backButton.setAttribute('aria-disabled', String(!canGoBack));
+        backButton.title = canGoBack ? 'Volver a la pantalla anterior' : 'No hay una pantalla anterior';
+        backButton.classList.toggle('is-disabled', !canGoBack);
     },
 
     executeViewScripts() {

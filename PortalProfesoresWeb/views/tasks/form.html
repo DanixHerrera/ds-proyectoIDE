@@ -30,6 +30,12 @@
             </div>
 
             <div class="form-group-custom">
+                <label for="taskAttachments">Adjuntar archivos</label>
+                <input type="file" id="taskAttachments" multiple>
+                <ul id="attachmentsList" class="attachments-list"></ul>
+            </div>
+
+            <div class="form-group-custom">
                 <label for="taskDueDate">Fecha de Vencimiento *</label>
                 <input type="datetime-local" id="taskDueDate" required>
             </div>
@@ -72,9 +78,22 @@
     loadCoursesForTaskSelect();
     loadGroupsForTaskSelect();
 
-    const editTaskId = app.currentParams ? parseInt(app.currentParams) : null;
+    const taskParams = app.currentParams || null;
+    const editTaskId = taskParams ? parseInt(taskParams.id || taskParams) : null;
     const taskTitle = document.getElementById('taskFormTitle');
     const taskSubmit = document.getElementById('submitTaskBtn');
+    let existingAttachments = [];
+
+    function renderAttachmentsList() {
+        const list = document.getElementById('attachmentsList');
+        if (!list) return;
+        list.innerHTML = existingAttachments.map((a, idx) => `
+            <li data-idx="${idx}">
+                <a href="data:${a.type};base64,${a.data}" download="${a.name}">${a.name}</a>
+                <button type="button" class="btn-delete-small" onclick="(function(){ existingAttachments.splice(${idx},1); renderAttachmentsList(); })()">Eliminar</button>
+            </li>
+        `).join('');
+    }
 
     if (editTaskId) {
         const task = tasks_module.getTaskById(editTaskId);
@@ -89,11 +108,27 @@
             document.getElementById('taskGroup').value = task.groupId ? String(task.groupId) : '';
             document.getElementById('taskDescription').value = task.description || '';
             document.getElementById('taskDueDate').value = task.dueDate ? task.dueDate.slice(0, 16) : '';
+            if (task.attachments && Array.isArray(task.attachments)) {
+                existingAttachments = task.attachments.slice();
+                renderAttachmentsList();
+            }
         }
     }
-
     document.getElementById('createTaskForm').addEventListener('submit', function(e) {
         e.preventDefault();
+
+        const fileInput = document.getElementById('taskAttachments');
+        const selectedFiles = fileInput ? Array.from(fileInput.files) : [];
+
+        const readFilesAsBase64 = (files) => Promise.all(files.map(f => new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1];
+                res({ name: f.name, type: f.type || 'application/octet-stream', size: f.size, data: base64 });
+            };
+            reader.onerror = () => rej(reader.error);
+            reader.readAsDataURL(f);
+        })));
 
         const taskData = {
             title: document.getElementById('taskTitle').value,
@@ -103,11 +138,18 @@
             dueDate: document.getElementById('taskDueDate').value,
         };
 
-        if (editTaskId) {
-            tasks_module.updateTask(editTaskId, taskData);
-            setTimeout(() => app.navigate('tasks'), 1000);
-        } else {
-            tasks_module.createTask(taskData);
-        }
+        readFilesAsBase64(selectedFiles).then(newAttachments => {
+            taskData.attachments = existingAttachments.concat(newAttachments);
+
+            if (editTaskId) {
+                tasks_module.updateTask(editTaskId, taskData);
+                setTimeout(() => app.navigate('tasks'), 1000);
+            } else {
+                tasks_module.createTask(taskData);
+            }
+        }).catch(err => {
+            console.error('Error leyendo archivos:', err);
+            app.showAlert('Error al procesar archivos adjuntos', 'error');
+        });
     });
 </script>

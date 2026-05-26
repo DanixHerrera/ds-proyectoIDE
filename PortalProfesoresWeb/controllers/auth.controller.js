@@ -117,8 +117,12 @@ const auth = {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('authToken');
 
+        if (app.navigationHistory) {
+            app.navigationHistory = [];
+        }
+
         app.showAlert('Sesión cerrada', 'info');
-        setTimeout(() => app.navigate('welcome'), 1000);
+        setTimeout(() => app.navigate('welcome', null, false), 1000);
 
         api.syncWithIDE({
             event: 'professor_logout',

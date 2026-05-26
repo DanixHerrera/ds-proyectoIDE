@@ -1,0 +1,74 @@
+<!-- Group Detail View -->
+<div class="dashboard-container">
+    <div id="alertContainer"></div>
+
+    <div class="form-container">
+        <h2 id="groupDetailTitle">Detalle del Grupo</h2>
+        <div id="groupDetailPanel" class="item-detail-panel"></div>
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="app.navigate('groups')">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+            <button type="button" class="btn-submit" id="editGroupFromDetail">Editar Grupo</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = currentUser.name;
+        const navName = document.getElementById('navUserName');
+        if (navName) navName.textContent = currentUser.name;
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
+    }
+
+    const groupId = app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
+    const group = groupId ? groups_module.getGroupById(groupId) : null;
+
+    if (!group) {
+        app.showAlert('Grupo no encontrado', 'error');
+        app.navigate('groups');
+    } else {
+        document.getElementById('groupDetailPanel').innerHTML = `
+            <div class="item-detail-header">
+                <div>
+                    <p class="item-detail-kicker">Grupo seleccionado</p>
+                    <h3>${group.name}</h3>
+                </div>
+                <span class="item-detail-badge">${group.studentCount || 0}/${group.capacity || 'sin límite'} estudiantes</span>
+            </div>
+            <div class="item-detail-grid">
+                <div class="item-detail-card"><span>Curso</span><strong>${group.courseName || 'N/A'}</strong></div>
+                <div class="item-detail-card"><span>Descripción</span><strong>${group.description || 'Sin descripción'}</strong></div>
+                <div class="item-detail-card"><span>Capacidad</span><strong>${group.capacity || 'Sin límite'}</strong></div>
+            </div>
+            <div class="item-detail-actions">
+                <button type="button" class="btn-students" onclick="manageGroupStudents('add')">
+                    <i class="fas fa-user-plus"></i> Agregar estudiantes
+                </button>
+                <button type="button" class="btn-students" onclick="manageGroupStudents('remove')">
+                    <i class="fas fa-user-minus"></i> Eliminar estudiantes
+                </button>
+                <button type="button" class="btn-students" onclick="viewGroupStudents()">
+                    <i class="fas fa-users"></i> Ver lista de estudiantes
+                </button>
+            </div>
+        `;
+
+        document.getElementById('editGroupFromDetail').addEventListener('click', function() {
+            app.navigate('create-group', { id: groupId, mode: 'edit' });
+        });
+    }
+
+    function manageGroupStudents(action) {
+        const actionText = action === 'add' ? 'agregar' : 'eliminar';
+        app.showAlert(`Módulo de estudiantes pendiente: pronto podrás ${actionText} estudiantes desde este grupo.`, 'info');
+    }
+
+    function viewGroupStudents() {
+        app.showAlert('Módulo de estudiantes pendiente: pronto podrás ver la lista de estudiantes desde este grupo.', 'info');
+    }
+</script>
