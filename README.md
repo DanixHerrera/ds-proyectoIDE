@@ -29,7 +29,7 @@ El sistema estará compuesto por dos componentes principales:
 
 Arquitectura del Sistema 
 ---
-El siguiente diagrama de clases incorpora las observaciones sobre la arquitectura de su sistema y se resalta en colores distintos donde se aplicaron patrones de diseño como el Decorator, Fachada y Memento.
+El siguiente diagrama de clases incorpora las observaciones sobre la arquitectura del sistema y se resalta en colores distintos donde se aplicaron patrones de diseño como el Decorator, Fachada y Memento.
 
 Conclusiones
 ---
