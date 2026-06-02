@@ -10,19 +10,25 @@
         RF-01: Ingreso de estudiantes
         RF-28: Ingreso de profesor
     -->
-    <Grid>
-        <Button x:Name="IniciarSesion" Content="Iniciar sesión" HorizontalAlignment="Center" Height="50" Margin="0,229,0,0" VerticalAlignment="Top" Width="1080" Click="Button_Click" Background="#FF40407F" Foreground="#FF7F7FFF" BorderBrush="#FF7F7FFF" FontSize="36"/>
-        <TextBox HorizontalAlignment="Center" Height="50" Margin="0,65,0,0" TextWrapping="Wrap" Text="Nombre" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" MaxLines="1" Foreground="White" FontSize="36"/>
+    <Grid Background="#FF0B1626">
+        <Button x:Name="IniciarSesion" Content="Iniciar sesión" HorizontalAlignment="Left" Height="50" Margin="555,380,0,0" VerticalAlignment="Top" Width="535" Click="Button_Click" Background="#FF123A62" Foreground="White" BorderBrush="#007F7FFF" FontSize="36"/>
+        <TextBox HorizontalAlignment="Left" Height="50" Margin="555,221,0,0" TextWrapping="Wrap" Text="Nombre" VerticalAlignment="Top" Width="535" TextChanged="TextBox_TextChanged" Background="White" MaxLines="1" Foreground="Black" FontSize="36"/>
         <TextBlock Text="Nombre de Usuario"
-            HorizontalAlignment="Center"
+            HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Foreground="Gray" Margin="0,10,0,0" Height="50" Width="1080" FontSize="36"/>
+            Foreground="Gray" Margin="555,180,0,0" Height="34" Width="535" FontSize="27"/>
         <TextBlock Text="Contraseña"
-            HorizontalAlignment="Center"
+            HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Foreground="Gray" Margin="0,120,0,0" Height="50" Width="1080" FontSize="36"/>
-        <TextBox HorizontalAlignment="Center" Height="49" TextWrapping="Wrap" Text="Contraseña" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" Foreground="White" MaxLines="2147483638" FontSize="36" Margin="0,175,0,0"/>
-        <Button x:Name="OlvideContrasena" Content="Olvidé mi contraseña" HorizontalAlignment="Center" Height="50" Margin="0,284,0,0" VerticalAlignment="Top" Width="1080" Click="OlvideContrasena_Click" Background="#FF1F1F3F" FontSize="36" BorderBrush="#FF7F7FFF" Foreground="#FF7F7FFF"/>
+            Foreground="Gray" Margin="555,285,0,0" Height="35" Width="535" FontSize="27"/>
+        <TextBox HorizontalAlignment="Left" Height="49" TextWrapping="Wrap" Text="Contraseña" VerticalAlignment="Top" Width="535" TextChanged="TextBox_TextChanged" Background="White" Foreground="Black" MaxLines="2147483638" FontSize="36" Margin="555,326,0,0"/>
+        <Button x:Name="OlvideContrasena" Content="Olvidé mi contraseña" HorizontalAlignment="Left" Height="50" Margin="555,435,0,0" VerticalAlignment="Top" Width="535" Click="OlvideContrasena_Click" Background="#FF123A62" FontSize="36" BorderBrush="#007F7FFF" Foreground="White"/>
+        <Rectangle HorizontalAlignment="Left" Height="684" Margin="10,0,0,0" Stroke="#004C2424" VerticalAlignment="Center" Width="540" Fill="#FF071223"/>
+        <Image HorizontalAlignment="Left" Height="318" Margin="92,137,0,0" VerticalAlignment="Top" Width="398" Source="/Views/Logo.png"/>
+        <TextBlock
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Foreground="White" Margin="0,460,0,0" Height="50" Width="550" FontSize="36" TextAlignment="Center" FontFamily="Cascadia Code"><Run Language="es-cr" Text="Student IDE"/></TextBlock>
 
     </Grid>
 </Window>
