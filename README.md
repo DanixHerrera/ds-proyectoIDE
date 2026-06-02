@@ -4,7 +4,7 @@
 ![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white)
 
-[![Latest Release](https://img.shields.io/github/DanixHerrera/ds-proyectoIDE/releases?style=for-the-badge&logo=github)](https://github.com/DanixHerrera/ds-proyectoIDE/releases/tag/v1.0.1)
+[![Latest Release](https://img.shields.io/github/v/DanixHerrera/ds-proyectoIDE/releases?style=for-the-badge&logo=github)](https://github.com/DanixHerrera/ds-proyectoIDE/releases/tag/v1.0.1)
 
 Descripción del problema
 ---
