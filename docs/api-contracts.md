@@ -39,7 +39,7 @@
 
 ## Módulo: Autenticación
 
-### 🔓 POST `/auth/login`
+###  POST `/auth/login`
 **RF-01, RF-28** — Inicio de sesión para estudiante y profesor.
 
 **Request**
@@ -67,7 +67,7 @@
 
 ---
 
-### 🔓 POST `/auth/recuperar-password`
+### POST `/auth/recuperar-password`
 **RF-02** — Envía un email con enlace de recuperación de contraseña.
 
 **Request**
@@ -92,7 +92,7 @@
 
 ---
 
-### 🔓 POST `/auth/registro`
+###  POST `/auth/registro`
 **RF-01** — Registro de nueva cuenta de usuario.
 
 **Request**
