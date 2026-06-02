@@ -9,7 +9,7 @@
 | Base URL | `https://<servidor>/api/v1` |
 | Protocolo | HTTPS + TLS 1.2 |
 | Formato | `application/json` + `UTF-8` |
-| Autenticación | `Authorization: Bearer <JWT>` en todos los endpoints salvo los marcados con 🔓 |
+| Autenticación | `Authorization: Bearer <JWT>` en todos los endpoints|
 | Estándar JWT | RFC 7519 |
 | Encoding archivos | `multipart/form-data` para subida de archivos |
 
