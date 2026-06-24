@@ -62,7 +62,7 @@
         }
     })();
 
-    document.getElementById('createCourseForm').addEventListener('submit', function(e) {
+    document.getElementById('createCourseForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const courseData = {
@@ -72,9 +72,10 @@
         };
 
         if (editCourseId) {
-            courses_module.updateCourse(editCourseId, courseData);
+            await courses_module.updateCourse(editCourseId, courseData);
+            setTimeout(() => app.navigate('courses'), 800);
         } else {
-            courses_module.createCourse(courseData);
+            await courses_module.createCourse(courseData);
         }
     });
 </script>

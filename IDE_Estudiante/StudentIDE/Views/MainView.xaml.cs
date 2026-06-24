@@ -51,6 +51,15 @@ namespace StudentIDE.Views
                 _viewModel.CodigoActual = CodeEditor.Text;
         }
 
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            App.LimpiarToken();
+            App.Api.ClearToken();
+            var welcome = new WelcomeView();
+            welcome.Show();
+            Close();
+        }
+
         private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(MainViewModel.CodigoActual))

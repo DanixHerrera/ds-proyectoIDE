@@ -29,38 +29,51 @@
 
 		<!-- FILA 0: Barra superior  -->
 		<Border Grid.Row="0" Background="#2D2D2D">
-			<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
-                <Button Content="📂 Abrir"
-                        Command="{Binding AbrirCommand}"
-                        Background="#3C3C3C"
-                        Foreground="White"
-                        BorderBrush="#555"
-                        Padding="10,4"
-                        Margin="0,0,8,0"
-                        Cursor="Hand"
-                        ToolTip="Abrir archivo"/>
-				
-				<Button Content="💾 Guardar"
-                        Command="{Binding GuardarCommand}"
-                        Background="#3C3C3C"
-                        Foreground="White"
-                        BorderBrush="#555"
-                        Padding="10,4"
-                        Margin="0,0,8,0"
-                        Cursor="Hand"
-                        ToolTip="Guardar archivo (Ctrl+S)"/>
-			
-				<Button Content="▶ Ejecutar"
-                        Command="{Binding EjecutarCommand}"
-                        Background="#3C3C3C"
-                        Foreground="White"
-                        BorderBrush="#555"
-                        Padding="10,4"
-                        Margin="0,0,8,0"
-                        Cursor="Hand"
-                        ToolTip="Ejecutar (F5)"/>
+			<DockPanel LastChildFill="False" VerticalAlignment="Center" Margin="8,0">
+				<StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+					<Button Content="📂 Abrir"
+							Command="{Binding AbrirCommand}"
+							Background="#3C3C3C"
+							Foreground="White"
+							BorderBrush="#555"
+							Padding="10,4"
+							Margin="0,0,8,0"
+							Cursor="Hand"
+							ToolTip="Abrir archivo"/>
 
-			</StackPanel>
+					<Button Content="💾 Guardar"
+							Command="{Binding GuardarCommand}"
+							Background="#3C3C3C"
+							Foreground="White"
+							BorderBrush="#555"
+							Padding="10,4"
+							Margin="0,0,8,0"
+							Cursor="Hand"
+							ToolTip="Guardar archivo (Ctrl+S)"/>
+
+					<Button Content="▶ Ejecutar"
+							Command="{Binding EjecutarCommand}"
+							Background="#3C3C3C"
+							Foreground="White"
+							BorderBrush="#555"
+							Padding="10,4"
+							Margin="0,0,8,0"
+							Cursor="Hand"
+							ToolTip="Ejecutar (F5)"/>
+				</StackPanel>
+
+				<Button Content="Cerrar sesión"
+						x:Name="LogoutBtn"
+						DockPanel.Dock="Right"
+						Background="#8B0000"
+						Foreground="White"
+						BorderBrush="#555"
+						Padding="10,4"
+						Margin="0,0,8,0"
+						Cursor="Hand"
+						FontSize="13"
+						Click="Logout_Click"/>
+			</DockPanel>
 		</Border>
 
 		<!-- ═══════════════════════════════════════════ -->

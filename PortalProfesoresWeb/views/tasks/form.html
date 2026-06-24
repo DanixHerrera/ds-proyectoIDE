@@ -127,21 +127,28 @@
         })();
     }
 
-    document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+    async function readFilesAsBase64(files) {
+        const results = [];
+        for (const f of files) {
+            const data = await new Promise((res, rej) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = reader.result.split(',')[1];
+                    res({ name: f.name, type: f.type || 'application/octet-stream', size: f.size, data: base64 });
+                };
+                reader.onerror = () => rej(reader.error);
+                reader.readAsDataURL(f);
+            });
+            results.push(data);
+        }
+        return results;
+    }
+
+    document.getElementById('createTaskForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const fileInput = document.getElementById('taskAttachments');
         const selectedFiles = fileInput ? Array.from(fileInput.files) : [];
-
-        const readFilesAsBase64 = (files) => Promise.all(files.map(f => new Promise((res, rej) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = reader.result.split(',')[1];
-                res({ name: f.name, type: f.type || 'application/octet-stream', size: f.size, data: base64 });
-            };
-            reader.onerror = () => rej(reader.error);
-            reader.readAsDataURL(f);
-        })));
 
         const taskData = {
             title: document.getElementById('taskTitle').value,
@@ -151,17 +158,19 @@
             dueDate: document.getElementById('taskDueDate').value,
         };
 
-        readFilesAsBase64(selectedFiles).then(newAttachments => {
+        try {
+            const newAttachments = await readFilesAsBase64(selectedFiles);
             taskData.attachments = existingAttachments.concat(newAttachments);
 
             if (editTaskId) {
-                tasks_module.updateTask(editTaskId, taskData);
+                await tasks_module.updateTask(editTaskId, taskData);
+                setTimeout(() => app.navigate('tasks'), 800);
             } else {
-                tasks_module.createTask(taskData);
+                await tasks_module.createTask(taskData);
             }
-        }).catch(err => {
+        } catch (err) {
             console.error('Error leyendo archivos:', err);
             app.showAlert('Error al procesar archivos adjuntos', 'error');
-        });
+        }
     });
 </script>
