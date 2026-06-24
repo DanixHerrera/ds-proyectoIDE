@@ -18,15 +18,7 @@
             MaxLines="1"/>
 
         <TextBlock Text="Contraseña"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Foreground="Gray" Margin="555,285,0,0" Height="35" Width="535" FontSize="27"/>
-        <TextBox HorizontalAlignment="Left" Height="49" TextWrapping="Wrap" Text="Contraseña" VerticalAlignment="Top" Width="535" TextChanged="TextBox_TextChanged" Background="White" Foreground="Black" MaxLines="2147483638" FontSize="36" Margin="555,326,0,0"/>
-        <Button x:Name="OlvideContrasena" Content="Olvidé mi contraseña" HorizontalAlignment="Left" Height="50" Margin="555,435,0,0" VerticalAlignment="Top" Width="535" Click="OlvideContrasena_Click" Background="#FF123A62" FontSize="36" BorderBrush="#007F7FFF" Foreground="White"/>
-        <Rectangle HorizontalAlignment="Left" Height="684" Margin="10,0,0,0" Stroke="#004C2424" VerticalAlignment="Center" Width="540" Fill="#FF071223"/>
-        <Image HorizontalAlignment="Left" Height="318" Margin="92,137,0,0" VerticalAlignment="Top" Width="398" Source="/Views/Logo.png"/>
-        <TextBlock
-            HorizontalAlignment="Left"
+            HorizontalAlignment="Center"
             VerticalAlignment="Top"
             Foreground="Gray" Margin="0,190,0,0" Height="40" Width="600" FontSize="28"/>
         <PasswordBox x:Name="PasswordBox"
