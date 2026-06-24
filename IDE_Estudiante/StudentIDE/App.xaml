@@ -1,8 +1,7 @@
 <Application x:Class="StudentIDE.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="Views/Welcome.xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
-        <!-- Recursos globales: colores, estilos y fuentes se agregarán aquí -->
+
     </Application.Resources>
 </Application>

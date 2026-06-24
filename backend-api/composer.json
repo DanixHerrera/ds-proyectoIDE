@@ -1,0 +1,14 @@
+{
+    "name": "studentide/backend-api",
+    "description": "StudentIDE central backend REST API",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "firebase/php-jwt": "^7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "StudentIDE\\": "src/"
+        }
+    }
+}

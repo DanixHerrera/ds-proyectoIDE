@@ -1,92 +1,108 @@
-// Course Controller - Gestion de cursos
+// Course Controller - CRUD via API
 const courses_module = {
-    getUserCourses() {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
+    _courses: [],
+    _loaded: false,
 
-        if (!currentUser) return [];
-
-        return data.courses.filter(course => course.professorId === currentUser.id) || [];
+    async _ensureLoaded() {
+        if (this._loaded) return;
+        try {
+            const data = await api.cursos.getAll();
+            this._courses = (data || []).map(c => ({
+                id: c.id,
+                name: c.name,
+                code: c.code,
+                description: c.description || '',
+                studentCount: c.student_count || 0,
+                createdAt: c.created_at || ''
+            }));
+        } catch (err) {
+            console.warn('Error cargando cursos:', err.message);
+            this._courses = [];
+        }
+        this._loaded = true;
     },
 
-    getCourseById(id) {
-        const data = getStoredData();
-        return data.courses.find(course => course.id === id);
+    _invalidateCache() {
+        this._loaded = false;
     },
 
-    createCourse(courseData) {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
-
-        if (!currentUser) {
-            app.showAlert('Debes iniciar sesión', 'error');
-            return;
-        }
-
-        if (data.courses.some(c => c.code === courseData.code && c.professorId === currentUser.id)) {
-            app.showAlert('Ya existe un curso con ese código', 'error');
-            return;
-        }
-
-        const newCourse = {
-            id: data.courses.length > 0 ? Math.max(...data.courses.map(c => c.id)) + 1 : 1,
-            professorId: currentUser.id,
-            name: courseData.name,
-            code: courseData.code,
-            description: courseData.description,
-            semester: courseData.semester,
-            studentCount: 0,
-            createdAt: new Date().toISOString()
-        };
-
-        data.courses.push(newCourse);
-        saveData(data);
-
-        app.showAlert('Curso creado exitosamente', 'success');
-        api.syncWithIDE({ event: 'course_created', course: newCourse });
-        setTimeout(() => app.navigate('courses'), 1000);
+    async getUserCourses() {
+        await this._ensureLoaded();
+        return this._courses;
     },
 
-    updateCourse(id, courseData) {
-        const data = getStoredData();
-        const course = data.courses.find(c => c.id === id);
-
-        if (!course) {
-            app.showAlert('Curso no encontrado', 'error');
-            return;
-        }
-
-        const duplicateCode = data.courses.find(c => c.code === courseData.code && c.professorId === course.professorId && c.id !== id);
-        if (duplicateCode) {
-            app.showAlert('Ya existe un curso con ese código', 'error');
-            return;
-        }
-
-        Object.assign(course, courseData);
-        saveData(data);
-
-        app.showAlert('Curso actualizado exitosamente', 'success');
-        api.syncWithIDE({ event: 'course_updated', course: course });
+    async getCourseById(id) {
+        await this._ensureLoaded();
+        return this._courses.find(c => c.id == id) || null;
     },
 
-    deleteCourse(id) {
-        if (!confirm('¿Estás seguro de que deseas eliminar este curso?')) return;
-
-        const data = getStoredData();
-        const courseIndex = data.courses.findIndex(c => c.id === id);
-
-        if (courseIndex === -1) {
-            app.showAlert('Curso no encontrado', 'error');
-            return;
+    async createCourse(courseData) {
+        try {
+            await api.cursos.create({
+                name: courseData.name,
+                code: courseData.code,
+                description: courseData.description || ''
+            });
+            this._invalidateCache();
+            app.showAlert('Curso creado exitosamente', 'success');
+            setTimeout(() => app.navigate('courses'), 1000);
+        } catch (err) {
+            app.showAlert(err.message || 'Error al crear curso', 'error');
         }
+    },
 
-        data.courses.splice(courseIndex, 1);
-        data.groups = data.groups.filter(g => g.courseId !== id);
-        data.tasks = data.tasks.filter(t => t.courseId !== id);
+    async updateCourse(id, courseData) {
+        try {
+            await api.cursos.update(id, {
+                name: courseData.name,
+                code: courseData.code,
+                description: courseData.description
+            });
+            this._invalidateCache();
+            app.showAlert('Curso actualizado exitosamente', 'success');
+        } catch (err) {
+            app.showAlert(err.message || 'Error al actualizar curso', 'error');
+        }
+    },
 
-        saveData(data);
-        app.showAlert('Curso eliminado exitosamente', 'success');
-        api.syncWithIDE({ event: 'course_deleted', courseId: id });
-        location.reload();
+    async deleteCourse(id) {
+        if (!confirm('Estas seguro de que deseas eliminar este curso?')) return;
+        try {
+            await api.cursos.delete(id);
+            this._invalidateCache();
+            app.showAlert('Curso eliminado exitosamente', 'success');
+            location.reload();
+        } catch (err) {
+            app.showAlert(err.message || 'Error al eliminar curso', 'error');
+        }
+    },
+
+    async getCourseStudents(courseId) {
+        try {
+            return await api.cursos.getStudents(courseId);
+        } catch (err) {
+            app.showAlert(err.message || 'Error al obtener estudiantes', 'error');
+            return [];
+        }
+    },
+
+    async addStudentToCourse(courseId, userId) {
+        try {
+            await api.cursos.addStudent(courseId, userId);
+            this._invalidateCache();
+            app.showAlert('Estudiante agregado al curso', 'success');
+        } catch (err) {
+            app.showAlert(err.message || 'Error al agregar estudiante', 'error');
+        }
+    },
+
+    async removeStudentFromCourse(courseId, userId) {
+        try {
+            await api.cursos.removeStudent(courseId, userId);
+            this._invalidateCache();
+            app.showAlert('Estudiante eliminado del curso', 'success');
+        } catch (err) {
+            app.showAlert(err.message || 'Error al eliminar estudiante', 'error');
+        }
     }
 };

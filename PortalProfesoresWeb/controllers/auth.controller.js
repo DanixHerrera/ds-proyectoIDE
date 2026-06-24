@@ -1,4 +1,4 @@
-// Authentication Controller - Manejo de autenticacion y usuarios
+// Authentication Controller - Manejo de autenticacion via API
 const auth = {
     currentUser: null,
 
@@ -11,123 +11,68 @@ const auth = {
 
     getPasswordValidationErrors(password) {
         const errors = [];
-
-        if (!password || password.length < 8) {
-            errors.push('mínimo 8 caracteres');
-        }
-        if (!/[A-Z]/.test(password || '')) {
-            errors.push('al menos una letra mayúscula');
-        }
-        if (!/[a-z]/.test(password || '')) {
-            errors.push('al menos una letra minúscula');
-        }
-        if (!/[0-9]/.test(password || '')) {
-            errors.push('al menos un número');
-        }
-        if (!/[^A-Za-z0-9]/.test(password || '')) {
-            errors.push('al menos un carácter especial');
-        }
-
+        if (!password || password.length < 8) errors.push('minimo 8 caracteres');
+        if (!/[A-Z]/.test(password || '')) errors.push('al menos una letra mayuscula');
+        if (!/[a-z]/.test(password || '')) errors.push('al menos una letra minuscula');
+        if (!/[0-9]/.test(password || '')) errors.push('al menos un numero');
+        if (!/[^A-Za-z0-9]/.test(password || '')) errors.push('al menos un caracter especial');
         return errors;
     },
 
-    register(name, email, password) {
-        const data = getStoredData();
-
-        const cleanName = (name || '').trim();
-        const cleanEmail = (email || '').trim();
-
-        if (!cleanName || !cleanEmail || !password) {
+    async register(name, email, password) {
+        if (!name || !email || !password) {
             app.showAlert('Debes completar todos los campos del registro', 'error');
             return;
         }
-
         const passwordErrors = this.getPasswordValidationErrors(password);
         if (passwordErrors.length > 0) {
-            app.showAlert(`Contraseña débil: ${passwordErrors.join(', ')}`, 'error');
+            app.showAlert(`Contrasena debil: ${passwordErrors.join(', ')}`, 'error');
             return;
         }
-
-        if (data.users.some(u => u.email.toLowerCase() === cleanEmail.toLowerCase())) {
-            app.showAlert('El email ya está registrado', 'error');
-            return;
+        try {
+            await api.auth.register({ name, email, password, role: 'profesor' });
+            app.showAlert('Cuenta creada exitosamente. Inicia sesion ahora.', 'success');
+            setTimeout(() => app.goToLogin(), 1500);
+        } catch (err) {
+            app.showAlert(err.message || 'Error al registrarse', 'error');
         }
-
-        const newUser = {
-            id: data.users.length + 1,
-            name: cleanName,
-            email: cleanEmail,
-            password: password
-        };
-
-        data.users.push(newUser);
-        saveData(data);
-
-        app.showAlert('Cuenta creada exitosamente. Inicia sesión ahora.', 'success');
-        setTimeout(() => app.goToLogin(), 1500);
     },
 
-    login(email, password) {
-        const data = getStoredData();
-        const cleanEmail = (email || '').trim();
-
-        if (!cleanEmail && !password) {
-            app.showAlert('Debes ingresar correo y contraseña', 'error');
+    async login(email, password) {
+        if (!email) {
+            app.showAlert('Debes ingresar tu correo electronico', 'error');
             return;
         }
-
-        if (!cleanEmail) {
-            app.showAlert('Debes ingresar tu correo electrónico', 'error');
-            return;
-        }
-
         if (!password) {
-            app.showAlert('Debes ingresar tu contraseña', 'error');
+            app.showAlert('Debes ingresar tu contrasena', 'error');
             return;
         }
-
-        const user = data.users.find(u => u.email.toLowerCase() === cleanEmail.toLowerCase() && u.password === password);
-
-        if (!user) {
-            app.showAlert('Email o contraseña incorrectos', 'error');
-            return;
+        try {
+            const result = await api.auth.login(email, password);
+            const token = result.token;
+            const user = result.usuario;
+            const role = result.rol;
+            if (!token || !user) {
+                app.showAlert('Error: respuesta invalida del servidor', 'error');
+                return;
+            }
+            localStorage.setItem('authToken', token);
+            this.currentUser = { id: user.id, name: user.name, email: user.email, role: role };
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+            app.showAlert('Bienvenido ' + user.name + '!', 'success');
+            setTimeout(() => app.navigate('dashboard'), 1000);
+        } catch (err) {
+            app.showAlert(err.message || 'Email o contrasena incorrectos', 'error');
         }
-
-        this.currentUser = {
-            id: user.id,
-            name: user.name,
-            email: user.email
-        };
-
-        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-        localStorage.setItem('authToken', 'token_' + user.id + '_' + Date.now());
-
-        app.showAlert('¡Bienvenido ' + user.name + '!', 'success');
-        setTimeout(() => app.navigate('dashboard'), 1000);
-
-        api.syncWithIDE({
-            event: 'professor_login',
-            professorId: user.id,
-            timestamp: new Date().toISOString()
-        });
     },
 
     logout() {
         this.currentUser = null;
         localStorage.removeItem('currentUser');
         localStorage.removeItem('authToken');
-
-        if (app.navigationHistory) {
-            app.navigationHistory = [];
-        }
-
-        app.showAlert('Sesión cerrada', 'info');
+        if (app.navigationHistory) app.navigationHistory = [];
+        app.showAlert('Sesion cerrada', 'info');
         setTimeout(() => app.navigate('welcome', null, false), 1000);
-
-        api.syncWithIDE({
-            event: 'professor_logout',
-            timestamp: new Date().toISOString()
-        });
     },
 
     getCurrentUser() {

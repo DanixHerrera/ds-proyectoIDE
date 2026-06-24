@@ -69,8 +69,12 @@
         }
     }
 
-    function loadTasks() {
-        const tasks = tasks_module.getUserTasks();
+    async function loadTasks() {
+        const filterCourseId = document.getElementById('courseFilterTasks').value;
+        let allTasks = await tasks_module.getUserTasks();
+        const tasks = filterCourseId
+            ? allTasks.filter(t => t.courseId == filterCourseId)
+            : allTasks;
         const tbody = document.getElementById('tasksTableBody');
         const emptyState = document.getElementById('emptyTasksState');
 
@@ -104,15 +108,17 @@
         }
     }
 
-    function loadCoursesFilter() {
-        const courses = courses_module.getUserCourses();
+    async function loadCoursesFilter() {
+        const courses = await courses_module.getUserCourses();
         const select = document.getElementById('courseFilterTasks');
         select.innerHTML = '<option value="">Todos los cursos</option>' +
             courses.map(course => `<option value="${course.id}">${course.name}</option>`).join('');
     }
 
-    loadCoursesFilter();
-    loadTasks();
+    (async () => {
+        await loadCoursesFilter();
+        await loadTasks();
+    })();
 
     document.getElementById('courseFilterTasks').addEventListener('change', function() {
         loadTasks();

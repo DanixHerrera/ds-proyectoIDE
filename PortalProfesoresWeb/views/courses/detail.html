@@ -14,6 +14,19 @@
     </div>
 </div>
 
+<div id="courseStudentModal" class="modal-custom" style="display:none;">
+    <div class="modal-content-custom" style="max-width: 600px;">
+        <div class="modal-header-custom">
+            <h2 id="courseModalTitle">Estudiantes</h2>
+            <button class="modal-close-btn" onclick="window.closeCourseModal()">&times;</button>
+        </div>
+        <div id="courseModalBody" style="max-height: 400px; overflow-y: auto;"></div>
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="window.closeCourseModal()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const currentUser = auth.getCurrentUser();
     if (currentUser) {
@@ -25,50 +38,161 @@
         if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
     }
 
-    const courseId = app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
-    const course = courseId ? courses_module.getCourseById(courseId) : null;
+    (async function() {
+        const courseId = app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
+        const course = courseId ? await courses_module.getCourseById(courseId) : null;
 
-    if (!course) {
-        app.showAlert('Curso no encontrado', 'error');
-        app.navigate('courses');
-    } else {
-        document.getElementById('courseDetailPanel').innerHTML = `
-            <div class="item-detail-header">
-                <div>
-                    <p class="item-detail-kicker">Curso seleccionado</p>
-                    <h3>${course.name}</h3>
+        if (!course) {
+            app.showAlert('Curso no encontrado', 'error');
+            app.navigate('courses');
+        } else {
+            document.getElementById('courseDetailPanel').innerHTML = `
+                <div class="item-detail-header">
+                    <div>
+                        <p class="item-detail-kicker">Curso seleccionado</p>
+                        <h3>${course.name}</h3>
+                    </div>
+                    <span class="item-detail-badge">${course.studentCount || 0} estudiantes</span>
                 </div>
-                <span class="item-detail-badge">${course.studentCount || 0} estudiantes</span>
-            </div>
-            <div class="item-detail-grid">
-                <div class="item-detail-card"><span>Código</span><strong>${course.code || 'N/A'}</strong></div>
-                <div class="item-detail-card"><span>Semestre</span><strong>${course.semester || 'N/A'}</strong></div>
-                <div class="item-detail-card"><span>Descripción</span><strong>${course.description || 'Sin descripción'}</strong></div>
-            </div>
-            <div class="item-detail-actions">
-                <button type="button" class="btn-students" onclick="manageCourseStudents('add')">
-                    <i class="fas fa-user-plus"></i> Agregar estudiantes
-                </button>
-                <button type="button" class="btn-students" onclick="manageCourseStudents('remove')">
-                    <i class="fas fa-user-minus"></i> Eliminar estudiantes
-                </button>
-                <button type="button" class="btn-students" onclick="viewCourseStudents()">
-                    <i class="fas fa-users"></i> Ver lista de estudiantes
-                </button>
-            </div>
-        `;
+                <div class="item-detail-grid">
+                    <div class="item-detail-card"><span>Código</span><strong>${course.code || 'N/A'}</strong></div>
+                    <div class="item-detail-card"><span>Descripción</span><strong>${course.description || 'Sin descripción'}</strong></div>
+                </div>
+                <div class="item-detail-actions">
+                    <button type="button" class="btn-students" onclick="window.manageCourseStudents('add')">
+                        <i class="fas fa-user-plus"></i> Agregar estudiantes
+                    </button>
+                    <button type="button" class="btn-students" onclick="window.manageCourseStudents('remove')">
+                        <i class="fas fa-user-minus"></i> Eliminar estudiantes
+                    </button>
+                    <button type="button" class="btn-students" onclick="window.viewCourseStudents()">
+                        <i class="fas fa-users"></i> Ver lista de estudiantes
+                    </button>
+                </div>
+            `;
 
-        document.getElementById('editCourseFromDetail').addEventListener('click', function() {
-            app.navigate('create-course', { id: courseId, mode: 'edit' });
-        });
-    }
+            document.getElementById('editCourseFromDetail').addEventListener('click', function() {
+                app.navigate('create-course', { id: courseId, mode: 'edit' });
+            });
+        }
+    })();
 
-    function manageCourseStudents(action) {
-        const actionText = action === 'add' ? 'agregar' : 'eliminar';
-        app.showAlert(`Módulo de estudiantes pendiente: pronto podrás ${actionText} estudiantes desde este curso.`, 'info');
-    }
+    window.courseStudentModalId = (function() {
+        return app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
+    })();
 
-    function viewCourseStudents() {
-        app.showAlert('Módulo de estudiantes pendiente: pronto podrás ver la lista de estudiantes desde este curso.', 'info');
-    }
+    window.closeCourseModal = function() {
+        document.getElementById('courseStudentModal').style.display = 'none';
+    };
+
+    window.manageCourseStudents = async function(action) {
+        const courseId = window.courseStudentModalId;
+        if (!courseId) return;
+        const title = document.getElementById('courseModalTitle');
+        const body = document.getElementById('courseModalBody');
+        const modal = document.getElementById('courseStudentModal');
+
+        if (action === 'add') {
+            title.textContent = 'Agregar estudiantes al curso';
+            body.innerHTML = '<p style="text-align:center;color:#64748b;">Cargando estudiantes...</p>';
+            modal.style.display = 'flex';
+
+            const [allStudents, courseStudents] = await Promise.all([
+                api.estudiantes.getAll(),
+                courses_module.getCourseStudents(courseId)
+            ]);
+
+            const enrolledIds = new Set((courseStudents || []).map(s => s.id));
+            const available = (allStudents || [])
+                .filter(s => s.role === 'student' && !enrolledIds.has(s.id));
+
+            if (available.length === 0) {
+                body.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px 0;">No hay estudiantes disponibles para agregar.</p>';
+                return;
+            }
+
+            body.innerHTML = available.map(s => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                    <div>
+                        <strong style="color:#0f172a;">${s.name}</strong><br>
+                        <span style="color:#64748b;font-size:0.85rem;">${s.email}${s.carne ? ' &mdash; ' + s.carne : ''}</span>
+                    </div>
+                    <button class="btn-edit" onclick="window.addCourseStudent(${courseId}, ${s.id}, this)">
+                        <i class="fas fa-plus"></i> Agregar
+                    </button>
+                </div>
+            `).join('');
+        } else if (action === 'remove') {
+            title.textContent = 'Eliminar estudiantes del curso';
+            body.innerHTML = '<p style="text-align:center;color:#64748b;">Cargando estudiantes...</p>';
+            modal.style.display = 'flex';
+
+            const courseStudents = await courses_module.getCourseStudents(courseId);
+
+            if (!courseStudents || courseStudents.length === 0) {
+                body.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px 0;">No hay estudiantes inscritos en este curso.</p>';
+                return;
+            }
+
+            body.innerHTML = courseStudents.map(s => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                    <div>
+                        <strong style="color:#0f172a;">${s.name}</strong><br>
+                        <span style="color:#64748b;font-size:0.85rem;">${s.email}${s.carne ? ' &mdash; ' + s.carne : ''}</span>
+                    </div>
+                    <button class="btn-delete" onclick="window.removeCourseStudent(${courseId}, ${s.id}, this)">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </div>
+            `).join('');
+        }
+    };
+
+    window.viewCourseStudents = async function() {
+        const courseId = window.courseStudentModalId;
+        if (!courseId) return;
+        const title = document.getElementById('courseModalTitle');
+        const body = document.getElementById('courseModalBody');
+        const modal = document.getElementById('courseStudentModal');
+
+        title.textContent = 'Lista de estudiantes del curso';
+        body.innerHTML = '<p style="text-align:center;color:#64748b;">Cargando estudiantes...</p>';
+        modal.style.display = 'flex';
+
+        const courseStudents = await courses_module.getCourseStudents(courseId);
+
+        if (!courseStudents || courseStudents.length === 0) {
+            body.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px 0;">No hay estudiantes inscritos en este curso.</p>';
+            return;
+        }
+
+        body.innerHTML = courseStudents.map(s => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                <div>
+                    <strong style="color:#0f172a;">${s.name}</strong><br>
+                    <span style="color:#64748b;font-size:0.85rem;">${s.email}${s.carne ? ' &mdash; ' + s.carne : ''}</span>
+                </div>
+                <span style="color:#64748b;font-size:0.85rem;">${s.added_at ? new Date(s.added_at).toLocaleDateString() : ''}</span>
+            </div>
+        `).join('');
+    };
+
+    window.addCourseStudent = async function(courseId, userId, btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        await courses_module.addStudentToCourse(courseId, userId);
+        btn.innerHTML = '<i class="fas fa-check"></i> Agregado';
+        btn.style.background = 'rgba(16,185,129,0.2)';
+        btn.style.color = '#10b981';
+    };
+
+    window.removeCourseStudent = async function(courseId, userId, btn) {
+        if (!confirm('¿Eliminar este estudiante del curso?')) return;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        await courses_module.removeStudentFromCourse(courseId, userId);
+        const row = btn.closest('div');
+        row.style.opacity = '0.3';
+        btn.innerHTML = '<i class="fas fa-check"></i> Eliminado';
+    };
 </script>

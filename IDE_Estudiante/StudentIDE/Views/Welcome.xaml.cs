@@ -9,20 +9,22 @@ namespace StudentIDE.Views
             InitializeComponent();
         }
 
-        private void RegistrarseBtn_Click(object sender, RoutedEventArgs e) {
-            RegisterView r = new RegisterView();
-            r.Show();
-            this.Close();
+        private void RegistrarseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var r = new RegisterView(App.Api);
+            r.ShowDialog();
         }
 
         private void LoginBtn_Click(object sender, RoutedEventArgs e)
         {
-            LoginView l = new LoginView();
-            l.Show();
-            this.Close();
+            var l = new LoginView(App.Api);
+            if (l.ShowDialog() == true && l.LoginExitoso)
+            {
+                App.GuardarToken(l.UsuarioLogueado!.TokenJWT);
+                var main = new MainView();
+                main.Show();
+                Close();
+            }
         }
-
-
-
     }
 }

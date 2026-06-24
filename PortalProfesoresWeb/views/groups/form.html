@@ -48,33 +48,38 @@
         if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
     }
 
-    function loadCoursesForSelect() {
-        const courses = courses_module.getUserCourses();
+    async function loadCoursesForSelect() {
+        const courses = await courses_module.getUserCourses();
         const select = document.getElementById('groupCourse');
         select.innerHTML = '<option value="">Seleccionar curso</option>' +
             courses.map(course => `<option value="${course.id}">${course.name}</option>`).join('');
     }
 
-    loadCoursesForSelect();
+    (async () => {
+        await loadCoursesForSelect();
+    })();
 
     const groupParams = app.currentParams || null;
     const editGroupId = groupParams ? parseInt(groupParams.id || groupParams) : null;
     const groupTitle = document.getElementById('groupFormTitle');
     const groupSubmit = document.getElementById('submitGroupBtn');
 
+
     if (editGroupId) {
-        const group = groups_module.getGroupById(editGroupId);
-        if (!group) {
-            app.showAlert('Grupo no encontrado', 'error');
-            app.navigate('groups');
-        } else {
-            groupTitle.textContent = 'Editar Grupo';
-            groupSubmit.textContent = 'Actualizar Grupo';
-            document.getElementById('groupName').value = group.name || '';
-            document.getElementById('groupCourse').value = String(group.courseId || '');
-            document.getElementById('groupDescription').value = group.description || '';
-            document.getElementById('groupCapacity').value = group.capacity || '';
-        }
+        (async () => {
+            const group = await groups_module.getGroupById(editGroupId);
+            if (!group) {
+                app.showAlert('Grupo no encontrado', 'error');
+                app.navigate('groups');
+            } else {
+                groupTitle.textContent = 'Editar Grupo';
+                groupSubmit.textContent = 'Actualizar Grupo';
+                document.getElementById('groupName').value = group.name || '';
+                document.getElementById('groupCourse').value = String(group.courseId || '');
+                document.getElementById('groupDescription').value = group.description || '';
+                document.getElementById('groupCapacity').value = group.capacity || '';
+            }
+        })();
     }
 
     document.getElementById('createGroupForm').addEventListener('submit', function(e) {
@@ -89,7 +94,6 @@
 
         if (editGroupId) {
             groups_module.updateGroup(editGroupId, groupData);
-            setTimeout(() => app.navigate('groups'), 1000);
         } else {
             groups_module.createGroup(groupData);
         }

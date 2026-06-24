@@ -1,8 +1,8 @@
 namespace StudentIDE.Models
 {
-    // Representa al usuario autenticado en la sesión actual.
     public class Usuario
     {
+        public int Id { get; set; }
         public string Carne { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string NombreCompleto { get; set; } = string.Empty;

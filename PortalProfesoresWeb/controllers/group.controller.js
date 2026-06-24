@@ -1,157 +1,118 @@
-// Group Controller - Gestion de grupos
+// Group Controller - CRUD via API
 const groups_module = {
-    getUserGroups() {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
+    _groups: [],
+    _loaded: false,
 
-        if (!currentUser) return [];
-
-        return data.groups.filter(group => group.professorId === currentUser.id) || [];
+    async _ensureLoaded() {
+        if (this._loaded) return;
+        try {
+            const data = await api.grupos.getAll();
+            this._groups = (data || []).map(g => ({
+                id: g.id,
+                name: g.name,
+                courseId: g.course_id,
+                courseName: g.course_name || '',
+                description: g.description || '',
+                capacity: g.capacity || null,
+                studentCount: g.student_count || 0,
+                students: [],
+                createdAt: g.created_at || ''
+            }));
+        } catch (err) {
+            console.warn('Error cargando grupos:', err.message);
+            this._groups = [];
+        }
+        this._loaded = true;
     },
 
-    getCourseGroups(courseId) {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
-
-        if (!currentUser) return [];
-
-        return data.groups.filter(group => 
-            group.courseId === courseId && group.professorId === currentUser.id
-        ) || [];
+    _invalidateCache() {
+        this._loaded = false;
     },
 
-    getGroupById(id) {
-        const data = getStoredData();
-        return data.groups.find(group => group.id === id);
+    async getUserGroups() {
+        await this._ensureLoaded();
+        return this._groups;
     },
 
-    createGroup(groupData) {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
-
-        if (!currentUser) {
-            app.showAlert('Debes iniciar sesión', 'error');
-            return;
-        }
-
-        const course = data.courses.find(c => c.id === parseInt(groupData.courseId));
-        if (!course) {
-            app.showAlert('Curso no encontrado', 'error');
-            return;
-        }
-
-        const newGroup = {
-            id: data.groups.length > 0 ? Math.max(...data.groups.map(g => g.id)) + 1 : 1,
-            professorId: currentUser.id,
-            courseId: parseInt(groupData.courseId),
-            courseName: course.name,
-            name: groupData.name,
-            description: groupData.description,
-            capacity: groupData.capacity || null,
-            studentCount: 0,
-            students: [],
-            createdAt: new Date().toISOString()
-        };
-
-        data.groups.push(newGroup);
-        saveData(data);
-
-        app.showAlert('Grupo creado exitosamente', 'success');
-        api.syncWithIDE({ event: 'group_created', group: newGroup });
-        setTimeout(() => app.navigate('groups'), 1000);
+    async getCourseGroups(courseId) {
+        await this._ensureLoaded();
+        return this._groups.filter(g => g.courseId == courseId);
     },
 
-    updateGroup(id, groupData) {
-        const data = getStoredData();
-        const group = data.groups.find(g => g.id === id);
-
-        if (!group) {
-            app.showAlert('Grupo no encontrado', 'error');
-            return;
-        }
-
-        const course = data.courses.find(c => c.id === parseInt(groupData.courseId));
-        Object.assign(group, {
-            ...groupData,
-            courseId: parseInt(groupData.courseId),
-            courseName: course ? course.name : group.courseName,
-            capacity: groupData.capacity || null
-        });
-        saveData(data);
-
-        app.showAlert('Grupo actualizado exitosamente', 'success');
-        api.syncWithIDE({ event: 'group_updated', group: group });
+    async getGroupById(id) {
+        await this._ensureLoaded();
+        return this._groups.find(g => g.id == id) || null;
     },
 
-    deleteGroup(id) {
-        if (!confirm('¿Estás seguro de que deseas eliminar este grupo?')) return;
-
-        const data = getStoredData();
-        const groupIndex = data.groups.findIndex(g => g.id === id);
-
-        if (groupIndex === -1) {
-            app.showAlert('Grupo no encontrado', 'error');
-            return;
+    async createGroup(groupData) {
+        try {
+            await api.grupos.create({
+                name: groupData.name,
+                course_id: parseInt(groupData.courseId),
+                description: groupData.description || '',
+                capacity: groupData.capacity ? parseInt(groupData.capacity) : null
+            });
+            this._invalidateCache();
+            app.showAlert('Grupo creado exitosamente', 'success');
+            setTimeout(() => app.navigate('groups'), 1000);
+        } catch (err) {
+            app.showAlert(err.message || 'Error al crear grupo', 'error');
         }
-
-        data.groups.splice(groupIndex, 1);
-        data.tasks.forEach(task => {
-            if (task.groupId === id) {
-                task.groupId = null;
-            }
-        });
-
-        saveData(data);
-        app.showAlert('Grupo eliminado exitosamente', 'success');
-        api.syncWithIDE({ event: 'group_deleted', groupId: id });
-        location.reload();
     },
 
-    addStudent(groupId, studentEmail) {
-        const data = getStoredData();
-        const group = data.groups.find(g => g.id === groupId);
-
-        if (!group) {
-            app.showAlert('Grupo no encontrado', 'error');
-            return;
+    async updateGroup(id, groupData) {
+        try {
+            await api.grupos.update(id, {
+                name: groupData.name,
+                course_id: parseInt(groupData.courseId),
+                description: groupData.description || '',
+                capacity: groupData.capacity ? parseInt(groupData.capacity) : null
+            });
+            this._invalidateCache();
+            app.showAlert('Grupo actualizado exitosamente', 'success');
+        } catch (err) {
+            app.showAlert(err.message || 'Error al actualizar grupo', 'error');
         }
-
-        if (group.capacity && group.studentCount >= group.capacity) {
-            app.showAlert('El grupo ha alcanzado su capacidad máxima', 'error');
-            return;
-        }
-
-        if (!group.students) {
-            group.students = [];
-        }
-
-        if (group.students.includes(studentEmail)) {
-            app.showAlert('El estudiante ya está en este grupo', 'warning');
-            return;
-        }
-
-        group.students.push(studentEmail);
-        group.studentCount = group.students.length;
-        saveData(data);
-
-        app.showAlert('Estudiante agregado al grupo', 'success');
-        api.syncWithIDE({ event: 'student_added_to_group', groupId: groupId, studentEmail: studentEmail });
     },
 
-    removeStudent(groupId, studentEmail) {
-        const data = getStoredData();
-        const group = data.groups.find(g => g.id === groupId);
+    async deleteGroup(id) {
+        if (!confirm('Estas seguro de que deseas eliminar este grupo?')) return;
+        try {
+            await api.grupos.delete(id);
+            this._invalidateCache();
+            app.showAlert('Grupo eliminado exitosamente', 'success');
+            location.reload();
+        } catch (err) {
+            app.showAlert(err.message || 'Error al eliminar grupo', 'error');
+        }
+    },
 
-        if (!group || !group.students) return;
+    async getGroupStudents(groupId) {
+        try {
+            return await api.grupos.getStudents(groupId);
+        } catch (err) {
+            app.showAlert(err.message || 'Error al obtener estudiantes', 'error');
+            return [];
+        }
+    },
 
-        const index = group.students.indexOf(studentEmail);
-        if (index > -1) {
-            group.students.splice(index, 1);
-            group.studentCount = group.students.length;
-            saveData(data);
+    async addStudent(groupId, userId) {
+        try {
+            await api.grupos.addStudent(groupId, userId);
+            this._invalidateCache();
+            app.showAlert('Estudiante agregado al grupo', 'success');
+        } catch (err) {
+            app.showAlert(err.message || 'Error al agregar estudiante', 'error');
+        }
+    },
 
-            app.showAlert('Estudiante removido del grupo', 'success');
-            api.syncWithIDE({ event: 'student_removed_from_group', groupId: groupId, studentEmail: studentEmail });
+    async removeStudent(groupId, userId) {
+        try {
+            await api.grupos.removeStudent(groupId, userId);
+            this._invalidateCache();
+            app.showAlert('Estudiante eliminado del grupo', 'success');
+        } catch (err) {
+            app.showAlert(err.message || 'Error al eliminar estudiante', 'error');
         }
     }
 };

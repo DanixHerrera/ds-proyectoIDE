@@ -54,6 +54,10 @@ const app = {
             });
         }
 
+        if (viewName === 'dashboard') {
+            this.navigationHistory = [];
+        }
+
         this.currentParams = params;
 
         if (!publicViews.includes(viewName) && !auth.isAuthenticated()) {
@@ -94,6 +98,10 @@ const app = {
 
         const previous = this.navigationHistory.pop();
         this.navigate(previous.viewName, previous.params, false);
+
+        if (previous.viewName === 'dashboard' || this.navigationHistory.length === 0) {
+            this.updateBackButtonState();
+        }
     },
 
     updateBackButtonState() {

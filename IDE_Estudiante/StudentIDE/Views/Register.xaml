@@ -6,27 +6,74 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize" Background="#FF2B2B2A">
 
-    <!--
-        RF-01: Ingreso de estudiantes
-        RF-28: Ingreso de profesor
-    -->
     <Grid>
-        <Button x:Name="RegisterBtn" Content="Registrarse" HorizontalAlignment="Center" Height="50" Margin="0,342,0,0" VerticalAlignment="Top" Width="1080" Click="Button_Click" Background="#FF40407F" Foreground="#FF7F7FFF" BorderBrush="#FF7F7FFF" FontSize="36"/>
-        <TextBox HorizontalAlignment="Center" Height="50" Margin="0,65,0,0" TextWrapping="Wrap" Text="Nombre" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" MaxLines="1" Foreground="White" FontSize="36"/>
-        <TextBlock Text="Nombre de Usuario"
+        <TextBlock Text="Nombre completo"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
-            Foreground="Gray" Margin="0,10,0,0" Height="50" Width="1080" FontSize="36"/>
-        <TextBlock Text="Contraseña"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Foreground="Gray" Margin="0,120,0,0" Height="50" Width="1080" FontSize="36"/>
-        <TextBox HorizontalAlignment="Center" Height="49" TextWrapping="Wrap" Text="Contraseña" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" Foreground="White" MaxLines="2147483638" FontSize="36" Margin="0,175,0,0"/>
-        <TextBlock
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Foreground="Gray" Margin="0,229,0,0" Height="50" Width="1080" FontSize="36"><Run Language="es-cr" Text="Correo electónico"/></TextBlock>
-        <TextBox HorizontalAlignment="Center" Height="49" TextWrapping="Wrap" Text="Correo" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" Foreground="White" MaxLines="2147483638" FontSize="36" Margin="0,284,0,0"/>
+            Foreground="Gray" Margin="0,30,0,0" Height="30" Width="600" FontSize="24"/>
+        <TextBox x:Name="NombreBox"
+            HorizontalAlignment="Center" Height="45" Margin="0,60,0,0"
+            TextWrapping="Wrap" VerticalAlignment="Top" Width="600"
+            Background="#FF525252" Foreground="White" FontSize="24"
+            MaxLines="1"/>
 
+        <TextBlock Text="Correo electrónico"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Foreground="Gray" Margin="0,120,0,0" Height="30" Width="600" FontSize="24"/>
+        <TextBox x:Name="EmailBox"
+            HorizontalAlignment="Center" Height="45" Margin="0,150,0,0"
+            TextWrapping="Wrap" VerticalAlignment="Top" Width="600"
+            Background="#FF525252" Foreground="White" FontSize="24"
+            MaxLines="1"/>
+
+        <TextBlock Text="Contraseña (mín. 8 caracteres, mayúscula, número y símbolo)"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Foreground="Gray" Margin="0,210,0,0" Height="30" Width="600" FontSize="16"/>
+        <PasswordBox x:Name="PasswordBox"
+            HorizontalAlignment="Center" Height="45" Margin="0,240,0,0"
+            VerticalAlignment="Top" Width="600"
+            Background="#FF525252" Foreground="White" FontSize="24"/>
+
+        <TextBlock Text="Carné (opcional)"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Foreground="Gray" Margin="0,300,0,0" Height="30" Width="600" FontSize="24"/>
+        <TextBox x:Name="CarneBox"
+            HorizontalAlignment="Center" Height="45" Margin="0,330,0,0"
+            TextWrapping="Wrap" VerticalAlignment="Top" Width="600"
+            Background="#FF525252" Foreground="White" FontSize="24"
+            MaxLines="1"/>
+
+        <Button x:Name="RegistrarseBtn"
+            Content="Registrarse"
+            HorizontalAlignment="Center" Height="55" Margin="0,410,0,0"
+            VerticalAlignment="Top" Width="600"
+            Click="Registrarse_Click"
+            Background="#FF40407F" Foreground="#FF7F7FFF"
+            BorderBrush="#FF7F7FFF" FontSize="28"/>
+
+        <TextBlock x:Name="MensajeError"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Foreground="#FF4444" Margin="0,480,0,0"
+            Height="40" Width="600" FontSize="18"
+            TextAlignment="Center" Visibility="Collapsed"/>
+
+        <TextBlock x:Name="MensajeExito"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Foreground="#44FF44" Margin="0,520,0,0"
+            Height="40" Width="600" FontSize="18"
+            TextAlignment="Center" Visibility="Collapsed"/>
+
+        <Button x:Name="VolverBtn"
+            Content="Volver"
+            HorizontalAlignment="Center" Height="45" Margin="0,570,0,0"
+            VerticalAlignment="Top" Width="600"
+            Click="Volver_Click"
+            Background="#FF1F1F3F" FontSize="22"
+            BorderBrush="#FF7F7FFF" Foreground="#FF7F7FFF"/>
     </Grid>
 </Window>

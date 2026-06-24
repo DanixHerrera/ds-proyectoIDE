@@ -20,11 +20,6 @@
                 <textarea id="courseDescription" placeholder="Describe el contenido y objetivos del curso"></textarea>
             </div>
 
-            <div class="form-group-custom">
-                <label for="courseSemester">Semestre/Período *</label>
-                <input type="text" id="courseSemester" placeholder="Ej: 2024-1" required>
-            </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn-submit" id="submitCourseBtn">Crear Curso</button>
                 <button type="button" class="btn-cancel" onclick="app.navigate('courses')"> Cancelar
@@ -47,23 +42,25 @@
 
     const courseParams = app.currentParams || null;
     const editCourseId = courseParams ? parseInt(courseParams.id || courseParams) : null;
-    const courseTitle = document.getElementById('courseFormTitle');
-    const courseSubmit = document.getElementById('submitCourseBtn');
 
-    if (editCourseId) {
-        const course = courses_module.getCourseById(editCourseId);
-        if (!course) {
-            app.showAlert('Curso no encontrado', 'error');
-            app.navigate('courses');
-        } else {
-            courseTitle.textContent = 'Editar Curso';
-            courseSubmit.textContent = 'Actualizar Curso';
-            document.getElementById('courseName').value = course.name || '';
-            document.getElementById('courseCode').value = course.code || '';
-            document.getElementById('courseDescription').value = course.description || '';
-            document.getElementById('courseSemester').value = course.semester || '';
+    (async function() {
+        const courseTitle = document.getElementById('courseFormTitle');
+        const courseSubmit = document.getElementById('submitCourseBtn');
+
+        if (editCourseId) {
+            const course = await courses_module.getCourseById(editCourseId);
+            if (!course) {
+                app.showAlert('Curso no encontrado', 'error');
+                app.navigate('courses');
+            } else {
+                courseTitle.textContent = 'Editar Curso';
+                courseSubmit.textContent = 'Actualizar Curso';
+                document.getElementById('courseName').value = course.name || '';
+                document.getElementById('courseCode').value = course.code || '';
+                document.getElementById('courseDescription').value = course.description || '';
+            }
         }
-    }
+    })();
 
     document.getElementById('createCourseForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -71,13 +68,11 @@
         const courseData = {
             name: document.getElementById('courseName').value,
             code: document.getElementById('courseCode').value,
-            description: document.getElementById('courseDescription').value,
-            semester: document.getElementById('courseSemester').value
+            description: document.getElementById('courseDescription').value
         };
 
         if (editCourseId) {
             courses_module.updateCourse(editCourseId, courseData);
-            setTimeout(() => app.navigate('courses'), 1000);
         } else {
             courses_module.createCourse(courseData);
         }

@@ -1,168 +1,109 @@
-// Task Controller - Gestion de tareas
+// Task Controller - CRUD via API
 const tasks_module = {
-    getUserTasks() {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
+    _tasks: [],
+    _loaded: false,
 
-        if (!currentUser) return [];
-
-        return data.tasks.filter(task => task.professorId === currentUser.id) || [];
-    },
-
-    getCourseTasks(courseId) {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
-
-        if (!currentUser) return [];
-
-        return data.tasks.filter(task => 
-            task.courseId === courseId && task.professorId === currentUser.id
-        ) || [];
-    },
-
-    getGroupTasks(groupId) {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
-
-        if (!currentUser) return [];
-
-        return data.tasks.filter(task => 
-            task.groupId === groupId && task.professorId === currentUser.id
-        ) || [];
-    },
-
-    getTaskById(id) {
-        const data = getStoredData();
-        return data.tasks.find(task => task.id === id);
-    },
-
-    createTask(taskData) {
-        const data = getStoredData();
-        const currentUser = auth.getCurrentUser();
-
-        if (!currentUser) {
-            app.showAlert('Debes iniciar sesión', 'error');
-            return;
+    async _ensureLoaded() {
+        if (this._loaded) return;
+        try {
+            const data = await api.tareas.getAll();
+            this._tasks = (data || []).map(t => ({
+                id: t.id,
+                professorId: t.professor_id,
+                courseId: t.course_id,
+                courseName: t.course_name || t.courseName || '',
+                groupId: t.group_id,
+                groupName: t.group_name || '',
+                title: t.titulo,
+                description: t.descripcion || '',
+                dueDate: t.fecha_limite,
+                attachments: [],
+                createdAt: t.created_at || ''
+            }));
+        } catch (err) {
+            console.warn('Error cargando tareas:', err.message);
+            this._tasks = [];
         }
-
-        const course = data.courses.find(c => c.id === parseInt(taskData.courseId));
-        if (!course) {
-            app.showAlert('Curso no encontrado', 'error');
-            return;
-        }
-
-        if (taskData.groupId) {
-            const group = data.groups.find(g => g.id === parseInt(taskData.groupId));
-            if (!group) {
-                app.showAlert('Grupo no encontrado', 'error');
-                return;
-            }
-        }
-
-        const newTask = {
-            id: data.tasks.length > 0 ? Math.max(...data.tasks.map(t => t.id)) + 1 : 1,
-            professorId: currentUser.id,
-            courseId: parseInt(taskData.courseId),
-            courseName: course.name,
-            groupId: taskData.groupId ? parseInt(taskData.groupId) : null,
-            title: taskData.title,
-            description: taskData.description,
-            dueDate: taskData.dueDate,
-            attachments: taskData.attachments && Array.isArray(taskData.attachments) ? taskData.attachments : [],
-            submissions: [],
-            createdAt: new Date().toISOString()
-        };
-
-        data.tasks.push(newTask);
-        saveData(data);
-
-        app.showAlert('Tarea creada exitosamente', 'success');
-        api.syncWithIDE({ event: 'task_created', task: newTask });
-        setTimeout(() => app.navigate('tasks'), 1000);
+        this._loaded = true;
     },
 
-    updateTask(id, taskData) {
-        const data = getStoredData();
-        const task = data.tasks.find(t => t.id === id);
+    _invalidateCache() {
+        this._loaded = false;
+    },
 
-        if (!task) {
-            app.showAlert('Tarea no encontrada', 'error');
-            return;
+    async getUserTasks() {
+        await this._ensureLoaded();
+        return this._tasks;
+    },
+
+    async getCourseTasks(courseId) {
+        await this._ensureLoaded();
+        return this._tasks.filter(t => t.courseId == courseId);
+    },
+
+    async getGroupTasks(groupId) {
+        await this._ensureLoaded();
+        return this._tasks.filter(t => t.groupId == groupId);
+    },
+
+    async getTaskById(id) {
+        await this._ensureLoaded();
+        return this._tasks.find(t => t.id == id) || null;
+    },
+
+    async createTask(taskData) {
+        try {
+            const body = {
+                group_id: parseInt(taskData.groupId),
+                titulo: taskData.title,
+                descripcion: taskData.description || '',
+                fecha_limite: taskData.dueDate.replace('T', ' ') + ':00'
+            };
+            await api.tareas.create(body);
+            this._invalidateCache();
+            app.showAlert('Tarea creada exitosamente', 'success');
+            setTimeout(() => app.navigate('tasks'), 1000);
+        } catch (err) {
+            app.showAlert(err.message || 'Error al crear tarea', 'error');
         }
+    },
 
-        const course = data.courses.find(c => c.id === parseInt(taskData.courseId));
-        Object.assign(task, {
-            ...taskData,
-            courseId: parseInt(taskData.courseId),
-            courseName: course ? course.name : task.courseName,
-            groupId: taskData.groupId ? parseInt(taskData.groupId) : null,
-            attachments: taskData.attachments && Array.isArray(taskData.attachments) ? taskData.attachments : task.attachments || []
+    async updateTask(id, taskData) {
+        try {
+            const body = {};
+            if (taskData.titulo || taskData.title) body.titulo = taskData.titulo || taskData.title;
+            if (taskData.descripcion || taskData.description) body.descripcion = taskData.descripcion || taskData.description;
+            if (taskData.dueDate) body.fecha_limite = taskData.dueDate.replace('T', ' ') + ':00';
+            if (taskData.groupId) body.group_id = parseInt(taskData.groupId);
+            await api.tareas.update(id, body);
+            this._invalidateCache();
+            app.showAlert('Tarea actualizada exitosamente', 'success');
+        } catch (err) {
+            app.showAlert(err.message || 'Error al actualizar tarea', 'error');
+        }
+    },
+
+    async deleteTask(id) {
+        if (!confirm('Estas seguro de que deseas eliminar esta tarea?')) return;
+        try {
+            await api.tareas.delete(id);
+            this._invalidateCache();
+            app.showAlert('Tarea eliminada exitosamente', 'success');
+            location.reload();
+        } catch (err) {
+            app.showAlert(err.message || 'Error al eliminar tarea', 'error');
+        }
+    },
+
+    async recordSubmission(taskId, studentId, submissionData) {
+        console.log('registro de entrega via API - pendiente implementar', {
+            taskId, studentId, submissionData
         });
-        task.updatedAt = new Date().toISOString();
-        saveData(data);
-
-        app.showAlert('Tarea actualizada exitosamente', 'success');
-        api.syncWithIDE({ event: 'task_updated', task: task });
     },
 
-    deleteTask(id) {
-        if (!confirm('¿Estás seguro de que deseas eliminar esta tarea?')) return;
-
-        const data = getStoredData();
-        const taskIndex = data.tasks.findIndex(t => t.id === id);
-
-        if (taskIndex === -1) {
-            app.showAlert('Tarea no encontrada', 'error');
-            return;
-        }
-
-        data.tasks.splice(taskIndex, 1);
-        saveData(data);
-
-        app.showAlert('Tarea eliminada exitosamente', 'success');
-        api.syncWithIDE({ event: 'task_deleted', taskId: id });
-        location.reload();
-    },
-
-    recordSubmission(taskId, studentId, submissionData) {
-        const data = getStoredData();
-        const task = data.tasks.find(t => t.id === taskId);
-
-        if (!task) return;
-
-        if (!task.submissions) {
-            task.submissions = [];
-        }
-
-        const submission = {
-            id: task.submissions.length + 1,
-            studentId: studentId,
-            submittedAt: new Date().toISOString(),
-            score: null,
-            feedback: '',
-            ...submissionData
-        };
-
-        task.submissions.push(submission);
-        saveData(data);
-
-        api.syncWithIDE({ event: 'task_submission_received', taskId: taskId, submission: submission });
-    },
-
-    scoreSubmission(taskId, submissionId, score, feedback) {
-        const data = getStoredData();
-        const task = data.tasks.find(t => t.id === taskId);
-
-        if (!task || !task.submissions) return;
-
-        const submission = task.submissions.find(s => s.id === submissionId);
-        if (submission) {
-            submission.score = score;
-            submission.feedback = feedback;
-            submission.scoredAt = new Date().toISOString();
-            saveData(data);
-
-            api.syncWithIDE({ event: 'task_submission_scored', taskId: taskId, submissionId: submissionId, score: score });
-        }
+    async scoreSubmission(taskId, submissionId, score, feedback) {
+        console.log('calificacion via API - pendiente implementar', {
+            taskId, submissionId, score, feedback
+        });
     }
 };

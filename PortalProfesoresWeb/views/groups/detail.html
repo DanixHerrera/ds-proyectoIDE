@@ -14,6 +14,19 @@
     </div>
 </div>
 
+<div id="groupStudentModal" class="modal-custom" style="display:none;">
+    <div class="modal-content-custom" style="max-width: 600px;">
+        <div class="modal-header-custom">
+            <h2 id="groupModalTitle">Estudiantes</h2>
+            <button class="modal-close-btn" onclick="window.closeGroupModal()">&times;</button>
+        </div>
+        <div id="groupModalBody" style="max-height: 400px; overflow-y: auto;"></div>
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="window.closeGroupModal()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const currentUser = auth.getCurrentUser();
     if (currentUser) {
@@ -25,50 +38,162 @@
         if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
     }
 
-    const groupId = app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
-    const group = groupId ? groups_module.getGroupById(groupId) : null;
+    (async function() {
+        const groupId = app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
+        const group = groupId ? await groups_module.getGroupById(groupId) : null;
 
-    if (!group) {
-        app.showAlert('Grupo no encontrado', 'error');
-        app.navigate('groups');
-    } else {
-        document.getElementById('groupDetailPanel').innerHTML = `
-            <div class="item-detail-header">
-                <div>
-                    <p class="item-detail-kicker">Grupo seleccionado</p>
-                    <h3>${group.name}</h3>
+        if (!group) {
+            app.showAlert('Grupo no encontrado', 'error');
+            app.navigate('groups');
+        } else {
+            document.getElementById('groupDetailPanel').innerHTML = `
+                <div class="item-detail-header">
+                    <div>
+                        <p class="item-detail-kicker">Grupo seleccionado</p>
+                        <h3>${group.name}</h3>
+                    </div>
+                    <span class="item-detail-badge">${group.studentCount || 0}/${group.capacity || 'sin límite'} estudiantes</span>
                 </div>
-                <span class="item-detail-badge">${group.studentCount || 0}/${group.capacity || 'sin límite'} estudiantes</span>
-            </div>
-            <div class="item-detail-grid">
-                <div class="item-detail-card"><span>Curso</span><strong>${group.courseName || 'N/A'}</strong></div>
-                <div class="item-detail-card"><span>Descripción</span><strong>${group.description || 'Sin descripción'}</strong></div>
-                <div class="item-detail-card"><span>Capacidad</span><strong>${group.capacity || 'Sin límite'}</strong></div>
-            </div>
-            <div class="item-detail-actions">
-                <button type="button" class="btn-students" onclick="manageGroupStudents('add')">
-                    <i class="fas fa-user-plus"></i> Agregar estudiantes
-                </button>
-                <button type="button" class="btn-students" onclick="manageGroupStudents('remove')">
-                    <i class="fas fa-user-minus"></i> Eliminar estudiantes
-                </button>
-                <button type="button" class="btn-students" onclick="viewGroupStudents()">
-                    <i class="fas fa-users"></i> Ver lista de estudiantes
-                </button>
-            </div>
-        `;
+                <div class="item-detail-grid">
+                    <div class="item-detail-card"><span>Curso</span><strong>${group.courseName || 'N/A'}</strong></div>
+                    <div class="item-detail-card"><span>Descripción</span><strong>${group.description || 'Sin descripción'}</strong></div>
+                    <div class="item-detail-card"><span>Capacidad</span><strong>${group.capacity || 'Sin límite'}</strong></div>
+                </div>
+                <div class="item-detail-actions">
+                    <button type="button" class="btn-students" onclick="window.manageGroupStudents('add')">
+                        <i class="fas fa-user-plus"></i> Agregar estudiantes
+                    </button>
+                    <button type="button" class="btn-students" onclick="window.manageGroupStudents('remove')">
+                        <i class="fas fa-user-minus"></i> Eliminar estudiantes
+                    </button>
+                    <button type="button" class="btn-students" onclick="window.viewGroupStudents()">
+                        <i class="fas fa-users"></i> Ver lista de estudiantes
+                    </button>
+                </div>
+            `;
 
-        document.getElementById('editGroupFromDetail').addEventListener('click', function() {
-            app.navigate('create-group', { id: groupId, mode: 'edit' });
-        });
-    }
+            document.getElementById('editGroupFromDetail').addEventListener('click', function() {
+                app.navigate('create-group', { id: groupId, mode: 'edit' });
+            });
+        }
+    })();
 
-    function manageGroupStudents(action) {
-        const actionText = action === 'add' ? 'agregar' : 'eliminar';
-        app.showAlert(`Módulo de estudiantes pendiente: pronto podrás ${actionText} estudiantes desde este grupo.`, 'info');
-    }
+    window.groupStudentModalId = (function() {
+        return app.currentParams ? parseInt(app.currentParams.id || app.currentParams) : null;
+    })();
 
-    function viewGroupStudents() {
-        app.showAlert('Módulo de estudiantes pendiente: pronto podrás ver la lista de estudiantes desde este grupo.', 'info');
-    }
+    window.closeGroupModal = function() {
+        document.getElementById('groupStudentModal').style.display = 'none';
+    };
+
+    window.manageGroupStudents = async function(action) {
+        const groupId = window.groupStudentModalId;
+        if (!groupId) return;
+        const title = document.getElementById('groupModalTitle');
+        const body = document.getElementById('groupModalBody');
+        const modal = document.getElementById('groupStudentModal');
+
+        if (action === 'add') {
+            title.textContent = 'Agregar estudiantes al grupo';
+            body.innerHTML = '<p style="text-align:center;color:#64748b;">Cargando estudiantes...</p>';
+            modal.style.display = 'flex';
+
+            const [allStudents, groupStudents] = await Promise.all([
+                api.estudiantes.getAll(),
+                groups_module.getGroupStudents(groupId)
+            ]);
+
+            const enrolledIds = new Set((groupStudents || []).map(s => s.id));
+            const available = (allStudents || [])
+                .filter(s => s.role === 'student' && !enrolledIds.has(s.id));
+
+            if (available.length === 0) {
+                body.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px 0;">No hay estudiantes disponibles para agregar.</p>';
+                return;
+            }
+
+            body.innerHTML = available.map(s => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                    <div>
+                        <strong style="color:#0f172a;">${s.name}</strong><br>
+                        <span style="color:#64748b;font-size:0.85rem;">${s.email}${s.carne ? ' &mdash; ' + s.carne : ''}</span>
+                    </div>
+                    <button class="btn-edit" onclick="window.addGroupStudent(${groupId}, ${s.id}, this)">
+                        <i class="fas fa-plus"></i> Agregar
+                    </button>
+                </div>
+            `).join('');
+        } else if (action === 'remove') {
+            title.textContent = 'Eliminar estudiantes del grupo';
+            body.innerHTML = '<p style="text-align:center;color:#64748b;">Cargando estudiantes...</p>';
+            modal.style.display = 'flex';
+
+            const groupStudents = await groups_module.getGroupStudents(groupId);
+
+            if (!groupStudents || groupStudents.length === 0) {
+                body.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px 0;">No hay estudiantes en este grupo.</p>';
+                return;
+            }
+
+            body.innerHTML = groupStudents.map(s => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                    <div>
+                        <strong style="color:#0f172a;">${s.name}</strong><br>
+                        <span style="color:#64748b;font-size:0.85rem;">${s.email}${s.carne ? ' &mdash; ' + s.carne : ''}</span>
+                    </div>
+                    <button class="btn-delete" onclick="window.removeGroupStudent(${groupId}, ${s.id}, this)">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </div>
+            `).join('');
+        }
+    };
+
+    window.viewGroupStudents = async function() {
+        const groupId = window.groupStudentModalId;
+        if (!groupId) return;
+        const title = document.getElementById('groupModalTitle');
+        const body = document.getElementById('groupModalBody');
+        const modal = document.getElementById('groupStudentModal');
+
+        title.textContent = 'Lista de estudiantes del grupo';
+        body.innerHTML = '<p style="text-align:center;color:#64748b;">Cargando estudiantes...</p>';
+        modal.style.display = 'flex';
+
+        const groupStudents = await groups_module.getGroupStudents(groupId);
+
+        if (!groupStudents || groupStudents.length === 0) {
+            body.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px 0;">No hay estudiantes en este grupo.</p>';
+            return;
+        }
+
+        body.innerHTML = groupStudents.map(s => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                <div>
+                    <strong style="color:#0f172a;">${s.name}</strong><br>
+                    <span style="color:#64748b;font-size:0.85rem;">${s.email}${s.carne ? ' &mdash; ' + s.carne : ''}</span>
+                </div>
+                <span style="color:#64748b;font-size:0.85rem;">${s.added_at ? new Date(s.added_at).toLocaleDateString() : ''}</span>
+            </div>
+        `).join('');
+    };
+
+    window.addGroupStudent = async function(groupId, userId, btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        await groups_module.addStudent(groupId, userId);
+        btn.innerHTML = '<i class="fas fa-check"></i> Agregado';
+        btn.style.background = 'rgba(16,185,129,0.2)';
+        btn.style.color = '#10b981';
+    };
+
+    window.removeGroupStudent = async function(groupId, userId, btn) {
+        if (!confirm('¿Eliminar este estudiante del grupo?')) return;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        await groups_module.removeStudent(groupId, userId);
+        const row = btn.closest('div');
+        row.style.opacity = '0.3';
+        btn.innerHTML = '<i class="fas fa-check"></i> Eliminado';
+    };
 </script>

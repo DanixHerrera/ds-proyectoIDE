@@ -1,108 +1,97 @@
-// API Service - Integracion con el backend del IDE estudiantil
+// API Service - Conexion al backend REST (StudentIDE)
 const api = {
     baseURL: 'http://localhost:5000/api',
-    timeout: 5000,
+    timeout: 8000,
 
     getHeaders() {
         const token = localStorage.getItem('authToken');
-        return {
-            'Content-Type': 'application/json',
-            'Authorization': token ? `Bearer ${token}` : ''
-        };
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        return headers;
     },
 
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
         const config = {
             method: options.method || 'GET',
-            headers: this.getHeaders(),
-            ...options
+            headers: { ...this.getHeaders(), ...options.headers }
         };
-
         if (options.body) {
             config.body = JSON.stringify(options.body);
         }
-
         try {
             const response = await fetch(url, config);
-
             if (!response.ok) {
-                throw new Error(`API Error: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.mensaje || `Error ${response.status}`);
             }
-
-            return await response.json();
+            const text = await response.text();
+            return text ? JSON.parse(text) : null;
         } catch (error) {
-            console.error('API Error:', error);
+            console.error('API Error:', endpoint, error.message);
             throw error;
         }
     },
 
-    courses: {
-        getAll: () => api.request('/courses'),
-        getById: (id) => api.request(`/courses/${id}`),
-        create: (data) => api.request('/courses', { method: 'POST', body: data }),
-        update: (id, data) => api.request(`/courses/${id}`, { method: 'PUT', body: data }),
-        delete: (id) => api.request(`/courses/${id}`, { method: 'DELETE' })
-    },
-
-    groups: {
-        getAll: () => api.request('/groups'),
-        getById: (id) => api.request(`/groups/${id}`),
-        create: (data) => api.request('/groups', { method: 'POST', body: data }),
-        update: (id, data) => api.request(`/groups/${id}`, { method: 'PUT', body: data }),
-        delete: (id) => api.request(`/groups/${id}`, { method: 'DELETE' })
-    },
-
-    tasks: {
-        getAll: () => api.request('/tasks'),
-        getById: (id) => api.request(`/tasks/${id}`),
-        create: (data) => api.request('/tasks', { method: 'POST', body: data }),
-        update: (id, data) => api.request(`/tasks/${id}`, { method: 'PUT', body: data }),
-        delete: (id) => api.request(`/tasks/${id}`, { method: 'DELETE' }),
-        getSubmissions: (taskId) => api.request(`/tasks/${taskId}/submissions`),
-        getStudentSubmissions: (taskId, studentId) => api.request(`/tasks/${taskId}/submissions/${studentId}`)
-    },
-
     auth: {
-        login: (email, password) => api.request('/auth/login', { method: 'POST', body: { email, password } }),
-        register: (data) => api.request('/auth/register', { method: 'POST', body: data }),
+        login: (email, password) =>
+            api.request('/auth/login', { method: 'POST', body: { email, password } }),
+        register: (data) =>
+            api.request('/auth/registro', { method: 'POST', body: data }),
         logout: () => {
             localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
             return Promise.resolve();
         }
     },
 
-    students: {
-        getAll: () => api.request('/students'),
-        getByGroup: (groupId) => api.request(`/groups/${groupId}/students`),
-        addToGroup: (groupId, studentId) => api.request(`/groups/${groupId}/students`, {
-            method: 'POST',
-            body: { studentId }
-        }),
-        removeFromGroup: (groupId, studentId) => api.request(`/groups/${groupId}/students/${studentId}`, {
-            method: 'DELETE'
-        })
+    cursos: {
+        getAll: () => api.request('/cursos'),
+        getById: (id) => api.request(`/cursos/${id}`),
+        create: (data) => api.request('/cursos', { method: 'POST', body: data }),
+        update: (id, data) => api.request(`/cursos/${id}`, { method: 'PUT', body: data }),
+        delete: (id) => api.request(`/cursos/${id}`, { method: 'DELETE' }),
+        getStudents: (courseId) => api.request(`/cursos/${courseId}/estudiantes`),
+        addStudent: (courseId, userId) =>
+            api.request(`/cursos/${courseId}/estudiantes`, { method: 'POST', body: { user_id: userId } }),
+        removeStudent: (courseId, userId) =>
+            api.request(`/cursos/${courseId}/estudiantes/${userId}`, { method: 'DELETE' })
+    },
+
+    grupos: {
+        getAll: () => api.request('/grupos'),
+        getById: (id) => api.request(`/grupos/${id}`),
+        create: (data) => api.request('/grupos', { method: 'POST', body: data }),
+        update: (id, data) => api.request(`/grupos/${id}`, { method: 'PUT', body: data }),
+        delete: (id) => api.request(`/grupos/${id}`, { method: 'DELETE' }),
+        getStudents: (groupId) => api.request(`/grupos/${groupId}/estudiantes`),
+        addStudent: (groupId, userId) =>
+            api.request(`/grupos/${groupId}/estudiantes`, { method: 'POST', body: { user_id: userId } }),
+        removeStudent: (groupId, userId) =>
+            api.request(`/grupos/${groupId}/estudiantes/${userId}`, { method: 'DELETE' })
+    },
+
+    tareas: {
+        getAll: () => api.request('/tareas'),
+        getById: (id) => api.request(`/tareas/${id}`),
+        create: (data) => api.request('/tareas', { method: 'POST', body: data }),
+        update: (id, data) => api.request(`/tareas/${id}`, { method: 'PUT', body: data }),
+        delete: (id) => api.request(`/tareas/${id}`, { method: 'DELETE' }),
+        getSubmissions: (taskId) => api.request(`/tareas/${taskId}/entregas`),
+        getStudentSubmissions: (taskId, studentId) =>
+            api.request(`/tareas/${taskId}/entregas/${studentId}`)
+    },
+
+    estudiantes: {
+        getAll: () => api.request('/estudiantes')
     },
 
     checkConnection: async () => {
         try {
-            const response = await fetch(`${api.baseURL}/health`, {
-                method: 'GET',
-                timeout: 3000
-            });
+            const response = await fetch(`${api.baseURL}/health`, { method: 'GET' });
             return response.ok;
-        } catch (error) {
-            console.warn('IDE estudiantil no disponible:', error);
+        } catch {
             return false;
-        }
-    },
-
-    syncWithIDE: async (data) => {
-        const isConnected = await api.checkConnection();
-        if (isConnected) {
-            console.log('Sincronizando con IDE:', data);
-        } else {
-            console.log('IDE no disponible. Datos almacenados localmente.');
         }
     }
 };

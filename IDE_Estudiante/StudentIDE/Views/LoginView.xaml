@@ -6,23 +6,47 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize" Background="#FF2B2B2A">
 
-    <!--
-        RF-01: Ingreso de estudiantes
-        RF-28: Ingreso de profesor
-    -->
     <Grid>
-        <Button x:Name="IniciarSesion" Content="Iniciar sesión" HorizontalAlignment="Center" Height="50" Margin="0,229,0,0" VerticalAlignment="Top" Width="1080" Click="Button_Click" Background="#FF40407F" Foreground="#FF7F7FFF" BorderBrush="#FF7F7FFF" FontSize="36"/>
-        <TextBox HorizontalAlignment="Center" Height="50" Margin="0,65,0,0" TextWrapping="Wrap" Text="Nombre" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" MaxLines="1" Foreground="White" FontSize="36"/>
-        <TextBlock Text="Nombre de Usuario"
+        <TextBlock Text="Correo electrónico"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
-            Foreground="Gray" Margin="0,10,0,0" Height="50" Width="1080" FontSize="36"/>
+            Foreground="Gray" Margin="0,60,0,0" Height="40" Width="600" FontSize="28"/>
+        <TextBox x:Name="EmailBox"
+            HorizontalAlignment="Center" Height="50" Margin="0,100,0,0"
+            TextWrapping="Wrap" VerticalAlignment="Top" Width="600"
+            Background="#FF525252" Foreground="White" FontSize="28"
+            MaxLines="1"/>
+
         <TextBlock Text="Contraseña"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
-            Foreground="Gray" Margin="0,120,0,0" Height="50" Width="1080" FontSize="36"/>
-        <TextBox HorizontalAlignment="Center" Height="49" TextWrapping="Wrap" Text="Contraseña" VerticalAlignment="Top" Width="1080" TextChanged="TextBox_TextChanged" Background="#FF525252" Foreground="White" MaxLines="2147483638" FontSize="36" Margin="0,175,0,0"/>
-        <Button x:Name="OlvideContrasena" Content="Olvidé mi contraseña" HorizontalAlignment="Center" Height="50" Margin="0,284,0,0" VerticalAlignment="Top" Width="1080" Click="OlvideContrasena_Click" Background="#FF1F1F3F" FontSize="36" BorderBrush="#FF7F7FFF" Foreground="#FF7F7FFF"/>
+            Foreground="Gray" Margin="0,190,0,0" Height="40" Width="600" FontSize="28"/>
+        <PasswordBox x:Name="PasswordBox"
+            HorizontalAlignment="Center" Height="50" Margin="0,230,0,0"
+            VerticalAlignment="Top" Width="600"
+            Background="#FF525252" Foreground="White" FontSize="28"/>
 
+        <Button x:Name="IniciarSesionBtn"
+            Content="Iniciar sesión"
+            HorizontalAlignment="Center" Height="60" Margin="0,330,0,0"
+            VerticalAlignment="Top" Width="600"
+            Click="IniciarSesion_Click"
+            Background="#FF40407F" Foreground="#FF7F7FFF"
+            BorderBrush="#FF7F7FFF" FontSize="32"/>
+
+        <TextBlock x:Name="MensajeError"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Foreground="#FF4444" Margin="0,420,0,0"
+            Height="40" Width="600" FontSize="20"
+            TextAlignment="Center" Visibility="Collapsed"/>
+
+        <Button x:Name="VolverBtn"
+            Content="Volver"
+            HorizontalAlignment="Center" Height="50" Margin="0,480,0,0"
+            VerticalAlignment="Top" Width="600"
+            Click="Volver_Click"
+            Background="#FF1F1F3F" FontSize="24"
+            BorderBrush="#FF7F7FFF" Foreground="#FF7F7FFF"/>
     </Grid>
 </Window>

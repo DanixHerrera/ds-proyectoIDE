@@ -44,8 +44,8 @@
         if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
     }
 
-    function loadCourses() {
-        const courses = courses_module.getUserCourses();
+    async function loadCourses() {
+        const courses = await courses_module.getUserCourses();
         const tbody = document.getElementById('coursesTableBody');
         const emptyState = document.getElementById('emptyCoursesState');
 

@@ -51,8 +51,12 @@
         if (avatar) avatar.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P';
     }
 
-    function loadGroups() {
-        const groups = groups_module.getUserGroups();
+    async function loadGroups() {
+        const filterCourseId = document.getElementById('courseFilterGroups').value;
+        let allGroups = await groups_module.getUserGroups();
+        const groups = filterCourseId
+            ? allGroups.filter(g => g.courseId == filterCourseId)
+            : allGroups;
         const tbody = document.getElementById('groupsTableBody');
         const emptyState = document.getElementById('emptyGroupsState');
 
@@ -82,15 +86,17 @@
         }
     }
 
-    function loadCoursesFilter() {
-        const courses = courses_module.getUserCourses();
+    async function loadCoursesFilter() {
+        const courses = await courses_module.getUserCourses();
         const select = document.getElementById('courseFilterGroups');
         select.innerHTML = '<option value="">Todos los cursos</option>' +
             courses.map(course => `<option value="${course.id}">${course.name}</option>`).join('');
     }
 
-    loadCoursesFilter();
-    loadGroups();
+    (async () => {
+        await loadCoursesFilter();
+        await loadGroups();
+    })();
 
     document.getElementById('courseFilterGroups').addEventListener('change', function() {
         loadGroups();

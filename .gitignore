@@ -36,3 +36,7 @@ TestResults/
 # Archivos de entorno local (si se agregan más adelante)
 .env
 appsettings.Local.json
+
+# PHP / Composer
+vendor/
+composer.lock
