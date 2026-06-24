@@ -4,6 +4,8 @@
 ![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white)
 
+[![Release](https://img.shields.io/github/v/release/DanixHerrera/ds-proyectoIDE?include_prereleases&style=for-the-badge&logo=github)](https://github.com/DanixHerrera/ds-proyectoIDE/releases)
+
 Descripción del problema
 ---
   El problema principal que se busca resolver es la dependencia extrema de los estudiantes de programación a herramientas externas, especialmente la Inteligencia Artificial, para generar soluciones para las evaluaciones, sin haber desarrollado las habilidades necesarias a través de los cursos como se explica en el artículo de Van Hanh y Thi Duyen (2025). 

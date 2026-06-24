@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\Logo.png" />
     <None Remove="Views\Welcome.png" />
   </ItemGroup>
 
@@ -19,6 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Include="Views\Logo.png" />
 	  <Resource Include="Views\Welcome.png" />
 	</ItemGroup>
 
