@@ -10,15 +10,15 @@
     <Grid Background="#FF071223">
 
         <Button x:Name="RegistrarseBtn" Content="Registrarse" 
-                HorizontalAlignment="Center" Height="89" Margin="0,441,0,0" VerticalAlignment="Top" Width="408" Click="RegistrarseBtn_Click" Background="#FF123A62" Foreground="White" BorderBrush="White" FontSize="54"/>
+                HorizontalAlignment="Left" Height="85" Margin="209,454,0,0" VerticalAlignment="Top" Width="341" Click="RegistrarseBtn_Click" Background="#FF123A62" Foreground="White" BorderBrush="White" FontSize="54"/>
 
         <Button x:Name="IniciarSesionBtn" Content="Iniciar sesión" 
-                HorizontalAlignment="Center" Height="89" Margin="0,535,0,0" VerticalAlignment="Top" Width="408" Click="LoginBtn_Click" Background="#FF123A62" Foreground="White" BorderBrush="White" FontSize="54"/>
-        <Image HorizontalAlignment="Left" Height="318" Margin="367,35,0,0" VerticalAlignment="Top" Width="398" Source="/Views/Logo.png"/>
+                HorizontalAlignment="Left" Height="85" Margin="588,454,0,0" VerticalAlignment="Top" Width="341" Click="LoginBtn_Click" Background="#FF123A62" Foreground="White" BorderBrush="White" FontSize="54"/>
+        <Image HorizontalAlignment="Center" Height="288" VerticalAlignment="Top" Width="370" Source="/Views/Logo.png" Margin="0,30,0,0"/>
         <TextBlock
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
-            Foreground="White" Margin="0,358,0,0" Height="50" Width="550" FontSize="36" TextAlignment="Center" FontFamily="Cascadia Code"><Run Language="es-cr" Text="Student IDE"/></TextBlock>
+            Foreground="White" Margin="0,342,0,0" Height="50" Width="550" FontSize="36" TextAlignment="Center" FontFamily="Cascadia Code"><Run Language="es-cr" Text="Crystal IDE"/></TextBlock>
 
     </Grid>
 </Window>

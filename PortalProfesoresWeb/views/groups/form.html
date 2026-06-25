@@ -7,7 +7,7 @@
         <form id="createGroupForm">
             <div class="form-group-custom">
                 <label for="groupName">Nombre del Grupo *</label>
-                <input type="text" id="groupName" placeholder="Ej: Grupo A - Equipo 1" required>
+                <input type="text" id="groupName" required>
             </div>
 
             <div class="form-group-custom">
@@ -19,18 +19,18 @@
 
             <div class="form-group-custom">
                 <label for="groupDescription">Descripción</label>
-                <textarea id="groupDescription" placeholder="Descripción opcional del grupo"></textarea>
+                <textarea id="groupDescription" ></textarea>
             </div>
 
             <div class="form-group-custom">
-                <label for="groupCapacity">Capacidad máxima de estudiantes</label>
-                <input type="number" id="groupCapacity" placeholder="Ej: 30" min="1">
+                <label for="groupCapacity">Capacidad máxima de estudiantes*</label>
+                <input type="number" id="groupCapacity" min="1" required>
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="btn-submit" id="submitGroupBtn">Crear Grupo</button>
                 <button type="button" class="btn-cancel" onclick="app.navigate('groups')">
-                    <i class="fas fa-times"></i> Cancelar
+                    Cancelar
                 </button>
             </div>
         </form>

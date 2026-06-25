@@ -6,7 +6,7 @@
         <div class="section-header">
             <h2>Mis Tareas</h2>
             <button class="btn-primary-custom" onclick="app.navigate('create-task')">
-                <i class="fas fa-plus"></i> Nueva Tarea
+                Nueva Tarea
             </button>
         </div>
 
@@ -88,17 +88,20 @@
                 const statusColor = getStatusBadgeColor(status);
                 return `
                     <tr>
-                        <td><span class="item-link" role="button" tabindex="0" onclick="app.navigate('task-detail', { id: ${task.id}, mode: 'view' })">${task.title}</span></td>
+                        <td>${task.title}</td>
                         <td>${task.courseName || 'N/A'}</td>
                         <td>${new Date(task.dueDate).toLocaleDateString('es-ES')}</td>
                         <td><span style="background-color: ${statusColor}20; color: ${statusColor}; padding: 4px 12px; border-radius: 20px; font-weight: 600;">${status}</span></td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-edit" onclick="event.stopPropagation(); app.navigate('create-task', { id: ${task.id}, mode: 'edit' })">
-                                    <i class="fa-solid fa-pen-to-square"></i> Editar
+                                <button class="btn-edit" onclick="app.navigate('create-task', { id: ${task.id}, mode: 'edit' })">
+                                    Editar
                                 </button>
-                                <button class="btn-delete" onclick="event.stopPropagation(); tasks_module.deleteTask(${task.id})">
-                                    <i class="fas fa-trash"></i> Eliminar
+                                <button class="btn-delete" onclick="tasks_module.deleteTask(${task.id})">
+                                    Eliminar
+                                </button>
+                                <button class="btn-view" onclick="app.navigate('task-detail', { id: ${task.id}, mode: 'view' })">
+                                    Ver detalle
                                 </button>
                             </div>
                         </td>

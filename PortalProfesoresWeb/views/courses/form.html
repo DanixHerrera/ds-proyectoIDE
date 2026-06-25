@@ -7,22 +7,22 @@
         <form id="createCourseForm">
             <div class="form-group-custom">
                 <label for="courseName">Nombre del Curso *</label>
-                <input type="text" id="courseName" placeholder="Ej: Introducción a Programación" required>
+                <input type="text" id="courseName" required>
             </div>
 
             <div class="form-group-custom">
                 <label for="courseCode">Código del Curso *</label>
-                <input type="text" id="courseCode" placeholder="Ej: CS101" required>
+                <input type="text" id="courseCode" required>
             </div>
 
             <div class="form-group-custom">
                 <label for="courseDescription">Descripción</label>
-                <textarea id="courseDescription" placeholder="Describe el contenido y objetivos del curso"></textarea>
+                <textarea id="courseDescription" ></textarea>
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="btn-submit" id="submitCourseBtn">Crear Curso</button>
-                <button type="button" class="btn-cancel" onclick="app.navigate('courses')"> Cancelar
+                <button type="button" class="btn-cancel" onclick="app.navigate('courses')">Cancelar
                 </button>
             </div>
         </form>

@@ -6,7 +6,7 @@
         <div class="section-header">
             <h2>Mis Grupos</h2>
             <button class="btn-primary-custom" onclick="app.navigate('create-group')">
-                <i class="fas fa-plus"></i> Nuevo Grupo
+                Nuevo Grupo
             </button>
         </div>
 
@@ -67,17 +67,20 @@
             emptyState.classList.add('hidden');
             tbody.innerHTML = groups.map(group => `
                 <tr>
-                    <td><span class="item-link" role="button" tabindex="0" onclick="app.navigate('group-detail', { id: ${group.id}, mode: 'view' })">${group.name}</span></td>
+                    <td>${group.name}</td>
                     <td>${group.courseName || 'N/A'}</td>
                     <td>${group.description}</td>
                     <td>${group.studentCount || 0}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-edit" onclick="event.stopPropagation(); app.navigate('create-group', { id: ${group.id}, mode: 'edit' })">
-                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            <button class="btn-edit" onclick="app.navigate('create-group', { id: ${group.id}, mode: 'edit' })">
+                                Editar
                             </button>
-                            <button class="btn-delete" onclick="event.stopPropagation(); groups_module.deleteGroup(${group.id})">
-                                <i class="fas fa-trash"></i> Eliminar
+                            <button class="btn-delete" onclick="groups_module.deleteGroup(${group.id})">
+                                Eliminar
+                            </button>
+                            <button class="btn-view" onclick="app.navigate('group-detail', { id: ${group.id}, mode: 'view' })">
+                                Ver detalle
                             </button>
                         </div>
                     </td>

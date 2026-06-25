@@ -1,48 +1,32 @@
 <!-- Register View -->
 <div class="auth-container">
-    <div class="auth-left">
-        <h1>
-            Portal de Profesores
-        </h1>
-    </div>
-    <div class="auth-right">
-        <div id="alertContainer"></div>
-        <div class="auth-form">
-            <h2>Crear Cuenta</h2>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="registerName">Nombre Completo</label>
-                    <input type="text" id="registerName" placeholder="" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail">Correo Electrónico</label>
-                    <input type="email" id="registerEmail" placeholder="" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword">Contraseña</label>
-                    <input type="password" id="registerPassword" placeholder="" required>
-                    <div class="password-strength-wrapper">
-                        <div class="password-strength-header">
-                            <span>Seguridad de contraseña</span>
-                            <span id="passwordStrengthLabel" class="strength-label strength-empty">Sin evaluar</span>
-                        </div>
-                        <div class="password-strength-track" aria-hidden="true">
-                            <div id="passwordStrengthBar" class="password-strength-bar"></div>
-                        </div>
-                        <small id="passwordStrengthHint" class="password-strength-hint">
-                            Debe incluir: 8+ caracteres, mayúscula, minúscula, número y carácter especial.
-                        </small>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="registerConfirmPassword">Confirmar Contraseña</label>
-                    <input type="password" id="registerConfirmPassword" placeholder="" required>
-                </div>
-                <button type="submit" class="btn-auth">Registrarse</button>
-            </form>
-            <div class="auth-toggle">
-                ¿Ya tienes cuenta? <a onclick="app.goToLogin()">Iniciar Sesión</a>
+    <h1 class="auth-title">Crystal Portal</h1>
+
+    <div id="alertContainer"></div>
+    <div class="auth-form">
+        <h2>Crear Cuenta</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="registerName">Nombre Completo</label>
+                <input type="text" id="registerName" placeholder="" required>
             </div>
+            <div class="form-group">
+                <label for="registerEmail">Correo Electrónico</label>
+                <input type="email" id="registerEmail" placeholder="" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Contraseña (mín 8 caracteres, mayúscula, número y símbolo)</label>
+                <input type="password" id="registerPassword" placeholder="" required>
+            </div>
+            <div class="form-group">
+                <label for="registerConfirmPassword">Confirmar Contraseña</label>
+                <input type="password" id="registerConfirmPassword" placeholder="" required>
+            </div>
+            <button type="submit" class="btn-auth">Registrarse</button>
+        </form>
+        <button class="btn-back" onclick="app.navigate('welcome')">Volver</button>
+        <div class="auth-toggle">
+            ¿Ya tienes cuenta? <a onclick="app.goToLogin()">Iniciar Sesión</a>
         </div>
     </div>
 </div>

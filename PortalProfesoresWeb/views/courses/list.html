@@ -6,7 +6,7 @@
         <div class="section-header">
             <h2>Mis Cursos</h2>
             <button class="btn-primary-custom" onclick="app.navigate('create-course')">
-                <i class="fas fa-plus"></i> Nuevo Curso
+                Nuevo Curso
             </button>
         </div>
 
@@ -56,17 +56,20 @@
             emptyState.classList.add('hidden');
             tbody.innerHTML = courses.map(course => `
                 <tr>
-                    <td><span class="item-link" role="button" tabindex="0" onclick="app.navigate('course-detail', { id: ${course.id}, mode: 'view' })">${course.name}</span></td>
+                    <td>${course.name}</td>
                     <td>${course.code}</td>
                     <td>${course.description}</td>
                     <td>${course.studentCount || 0}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-edit" onclick="event.stopPropagation(); app.navigate('create-course', { id: ${course.id}, mode: 'edit' })">
-                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            <button class="btn-edit" onclick="app.navigate('create-course', { id: ${course.id}, mode: 'edit' })">
+                                Editar
                             </button>
-                            <button class="btn-delete" onclick="event.stopPropagation(); courses_module.deleteCourse(${course.id})">
-                                <i class="fas fa-trash"></i> Eliminar
+                            <button class="btn-delete" onclick="courses_module.deleteCourse(${course.id})">
+                                Eliminar
+                            </button>
+                            <button class="btn-view" onclick="app.navigate('course-detail', { id: ${course.id}, mode: 'view' })">
+                               Ver detalle
                             </button>
                         </div>
                     </td>
