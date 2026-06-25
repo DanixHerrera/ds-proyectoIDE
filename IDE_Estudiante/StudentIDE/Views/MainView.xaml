@@ -8,7 +8,8 @@
         Title="StudentIDE"
         Height="700"
         Width="1100"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
 
 	<!--
         ESTRUCTURA PRINCIPAL DE LA VENTANA

@@ -4,7 +4,7 @@
         Title="Welcome — Iniciar sesión"
         Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize" Background="#FF2B2B2A">
+        ResizeMode="CanResize" Background="#FF2B2B2A">
 
 
     <Grid Background="#FF071223">

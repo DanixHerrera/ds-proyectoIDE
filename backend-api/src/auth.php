@@ -59,9 +59,13 @@ function registro(array $input): void
         Middleware::errorResponse(400, 'AUTH_006', 'La contraseña debe tener al menos 8 caracteres');
     }
 
-    $role = isset($input['rol']) && in_array($input['rol'], ['estudiante', 'profesor', 'admin'])
-        ? ($input['rol'] === 'estudiante' ? 'student' : ($input['rol'] === 'profesor' ? 'teacher' : 'admin'))
-        : 'student';
+    $rawRole = $input['role'] ?? $input['rol'] ?? 'estudiante';
+    $role = match ($rawRole) {
+        'estudiante', 'student' => 'student',
+        'profesor', 'teacher' => 'teacher',
+        'admin' => 'admin',
+        default => 'student',
+    };
 
     $input['role'] = $role;
     registerUser($input);

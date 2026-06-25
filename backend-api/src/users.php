@@ -32,43 +32,49 @@ function registerUser(array $data): void
         Middleware::errorResponse(400, 'AUTH_006', 'Datos incompletos: nombre, email y password son requeridos');
     }
 
-    $pdo = getPDO();
+    try {
+        $pdo = getPDO();
 
-    // Check duplicate email
-    $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
-    $stmt->execute([$data['email']]);
-    if ($stmt->fetch()) {
-        Middleware::errorResponse(409, 'AUTH_005', 'El email ya está registrado');
-    }
-
-    // Check duplicate carne if provided
-    if (!empty($data['carne'])) {
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE carne = ?');
-        $stmt->execute([$data['carne']]);
+        // Check duplicate email
+        $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+        $stmt->execute([$data['email']]);
         if ($stmt->fetch()) {
-            Middleware::errorResponse(409, 'AUTH_005', 'El carné ya está registrado');
+            Middleware::errorResponse(409, 'AUTH_005', 'El email ya está registrado');
         }
+
+        // Check duplicate carne if provided
+        if (!empty($data['carne'])) {
+            $stmt = $pdo->prepare('SELECT id FROM users WHERE carne = ?');
+            $stmt->execute([$data['carne']]);
+            if ($stmt->fetch()) {
+                Middleware::errorResponse(409, 'AUTH_005', 'El carné ya está registrado');
+            }
+        }
+
+        $password = password_hash($data['password'], PASSWORD_BCRYPT, ['cost' => 12]);
+        $role = isset($data['role']) && in_array($data['role'], ['student', 'teacher', 'admin'])
+            ? $data['role'] : 'student';
+        $carne = $data['carne'] ?? null;
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO users (name, email, password, role, carne, created_at) VALUES (?, ?, ?, ?, ?, NOW())'
+        );
+        $stmt->execute([$data['name'], $data['email'], $password, $role, $carne]);
+        $id = $pdo->lastInsertId();
+
+        http_response_code(201);
+        echo json_encode([
+            'id' => (int)$id,
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => $role,
+            'carne' => $carne,
+        ]);
+    } catch (PDOException $e) {
+        Middleware::errorResponse(500, 'DB_001', 'Error de base de datos al registrar usuario');
+    } catch (Throwable $e) {
+        Middleware::errorResponse(500, 'SYS_001', 'Error interno del servidor');
     }
-
-    $password = password_hash($data['password'], PASSWORD_BCRYPT, ['cost' => 12]);
-    $role = isset($data['role']) && in_array($data['role'], ['student', 'teacher', 'admin'])
-        ? $data['role'] : 'student';
-    $carne = $data['carne'] ?? null;
-
-    $stmt = $pdo->prepare(
-        'INSERT INTO users (name, email, password, role, carne, created_at) VALUES (?, ?, ?, ?, ?, NOW())'
-    );
-    $stmt->execute([$data['name'], $data['email'], $password, $role, $carne]);
-    $id = $pdo->lastInsertId();
-
-    http_response_code(201);
-    echo json_encode([
-        'id' => (int)$id,
-        'name' => $data['name'],
-        'email' => $data['email'],
-        'role' => $role,
-        'carne' => $carne,
-    ]);
 }
 
 function updateUser(int $id, array $data): void
