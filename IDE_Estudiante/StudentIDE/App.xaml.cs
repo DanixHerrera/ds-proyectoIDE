@@ -37,7 +37,7 @@ namespace StudentIDE
         {
             var dir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "StudentIDE");
+                "CrystalIDE");
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, "session.json"),
                 JsonSerializer.Serialize(new { token }));

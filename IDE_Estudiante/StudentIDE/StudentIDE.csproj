@@ -15,23 +15,19 @@
     <None Remove="Views\Welcome.png" />
   </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="AvalonEdit" Version="6.3.0.90" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <Resource Include="Views\Logo.png" />
-	  <Resource Include="Views\Welcome.png" />
-	</ItemGroup>
+  <ItemGroup>
+    <Resource Include="Views\Logo.png" />
+    <Resource Include="Views\Welcome.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="System.Windows.Forms" />
-	</ItemGroup>
 
 </Project>
