@@ -7,7 +7,7 @@ using StudentIDE.Views;
 
 namespace StudentIDE
 {
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         public static ApiService Api { get; private set; } = null!;
 

@@ -41,7 +41,7 @@ namespace StudentIDE.Utils
             }
         }
 
-        private static void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        private static void OnPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {

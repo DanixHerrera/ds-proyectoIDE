@@ -202,13 +202,19 @@ switch ($resource) {
 
         // /api/entregas/{id}/historial|bitacora|descargar|tiempo
         if ($id && $subResource) {
+            // 'descargar' is accessible by both profesor and estudiante (own submission)
+            if ($subResource === 'descargar') {
+                downloadSubmission($id, $user);
+                exit;
+            }
+
+            // All other sub-resources are profesor-only
             $roleCheck = Middleware::roleMiddleware('profesor');
             $roleCheck($user);
 
             match ($subResource) {
                 'historial' => getSubmissionHistory($id),
                 'bitacora' => getSubmissionBitacora($id),
-                'descargar' => downloadSubmission($id),
                 'tiempo' => getSubmissionTime($id),
                 default => Middleware::errorResponse(404, 'SYS_001', 'Sub-recurso no válido'),
             };

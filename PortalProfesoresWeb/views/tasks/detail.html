@@ -15,6 +15,37 @@
 </div>
 
 <script>
+    window.downloadWithAuth = async function(url, filename) {
+        const token = localStorage.getItem('authToken');
+        if (!token) { app.showAlert('No hay sesión activa', 'error'); return; }
+        try {
+            const res = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                app.showAlert(err.mensaje || 'Error al descargar', 'error');
+                return;
+            }
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename;
+            a.style.position = 'fixed';
+            a.style.top = '-9999px';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+            }, 1000);
+        } catch (err) {
+            console.error('Download error:', err);
+            app.showAlert(err.message || 'Error de conexión al descargar', 'error');
+        }
+    }
+
     const currentUser = auth.getCurrentUser();
     if (currentUser) {
         const userNameEl = document.getElementById('userName');
@@ -46,8 +77,9 @@
 
             var attachmentsHtml = '';
             if (task.tieneArchivo && task.downloadUrl) {
+                const safeName = (task.nombreArchivo || 'archivo').replace(/'/g, "\\'");
                 attachmentsHtml = '<div class="attachments-section"><h4>Archivo adjunto</h4><ul>' +
-                    '<li><a href="' + task.downloadUrl + '" download="' + (task.nombreArchivo || 'archivo') + '">' + (task.nombreArchivo || 'Descargar') + (task.tamano ? ' (' + formatFileSize(task.tamano) + ')' : '') + '</a></li>' +
+                    '<li><a href="#" onclick="event.preventDefault(); downloadWithAuth(\'' + task.downloadUrl + '\', \'' + safeName + '\')">' + (task.nombreArchivo || 'Descargar') + (task.tamano ? ' (' + formatFileSize(task.tamano) + ')' : '') + '</a></li>' +
                     '</ul></div>';
             }
 
@@ -70,6 +102,58 @@
             document.getElementById('editTaskFromDetail').addEventListener('click', function() {
                 app.navigate('create-task', { id: taskId, mode: 'edit' });
             });
+
+            // ── Cargar entregas ───────────────────────────────
+            const submissions = await tasks_module.getTaskSubmissions(taskId);
+            const container = document.getElementById('taskDetailPanel');
+
+            if (submissions.length === 0) {
+                container.innerHTML += '<div class="form-group" style="margin-top:24px"><h4>Entregas</h4><p style="color:#000">No hay entregas aún.</p></div>';
+            } else {
+                function formatDate(d) {
+                    if (!d) return 'N/A';
+                    return new Date(d).toLocaleString('es-ES');
+                }
+
+                let rows = '';
+                for (const s of submissions) {
+                    const tardia = s.esTardia ? 'Sí' : 'No';
+                    const safeUrl = (s.downloadUrl || '').replace(/'/g, '%27');
+                    const safeName = (s.nombreArchivo || 'solucion').replace(/'/g, "\\'");
+                    const downloadLink = s.tieneArchivo && s.downloadUrl
+                        ? `<a href="#" onclick="event.preventDefault(); downloadWithAuth('${safeUrl}', '${safeName}')" style="color:#007ACC;text-decoration:none">Descargar</a>`
+                        : '<span style="color:#000">Sin archivo</span>';
+
+                    rows += `<tr style="color:#000">
+                        <td><strong>${s.name}</strong><br><small style="color:#000">${s.email}</small></td>
+                        <td>${s.carne || 'N/A'}</td>
+                        <td>${formatDate(s.timestamp)}</td>
+                        <td>#${s.numeroIntento}</td>
+                        <td>${tardia}</td>
+                        <td>${downloadLink}</td>
+                    </tr>`;
+                }
+
+                container.innerHTML += `
+                    <div class="form-group" style="margin-top:24px">
+                        <h4>Entregas (${submissions.length})</h4>
+                        <div style="overflow-x:auto;margin-top:12px">
+                            <table style="width:100%;border-collapse:collapse;font-size:13px">
+                                <thead>
+                                    <tr style="background:#C8C8C8;color:#000;text-align:left">
+                                        <th style="padding:8px 12px">Estudiante</th>
+                                        <th style="padding:8px 12px">Carné</th>
+                                        <th style="padding:8px 12px">Fecha entrega</th>
+                                        <th style="padding:8px 12px">Intento</th>
+                                        <th style="padding:8px 12px">Tardía</th>
+                                        <th style="padding:8px 12px">Archivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            }
         }
     })();
 </script>

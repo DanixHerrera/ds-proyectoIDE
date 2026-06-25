@@ -1,16 +1,16 @@
-using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
-using ICSharpCode.AvalonEdit;
-using StudentIDE.ViewModels;
+using StudentIDE.Models;
 using StudentIDE.Utils;
+using StudentIDE.ViewModels;
 
 namespace StudentIDE.Views
 {
-  
     public partial class MainView : Window
     {
         private readonly MainViewModel _viewModel;
+        private bool _syncing;
 
         public MainView()
         {
@@ -18,9 +18,6 @@ namespace StudentIDE.Views
 
             _viewModel = new MainViewModel();
             DataContext = _viewModel;
-            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-
-            //ctrl+S activo a nivel de ventana,
 
             InputBindings.Add(new KeyBinding(
                 _viewModel.GuardarCommand,
@@ -37,10 +34,8 @@ namespace StudentIDE.Views
                 new KeyGesture(Key.F5)
             ));
 
-            CodeEditor.Text = _viewModel.CodigoActual;
-
-
             CodeEditor.TextChanged += OnEditorTextChanged;
+            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
             BloqueadorClipboard.Attach(CodeEditor);
 
@@ -58,12 +53,58 @@ namespace StudentIDE.Views
             };
         }
 
-        //Mantiene CodigoActual en el ViewModel sincronizado con lo que el usuario escribe en el editor AvalonEdit.
+        // ── Editor <-> Tab sync ───────────────────────────────
+
         private void OnEditorTextChanged(object? sender, EventArgs e)
         {
-            if (_viewModel.CodigoActual != CodeEditor.Text)
-                _viewModel.CodigoActual = CodeEditor.Text;
+            if (_syncing) return;
+            if (_viewModel.SelectedTab == null) return;
+
+            _viewModel.SelectedTab.Content = CodeEditor.Text;
+            if (!_viewModel.SelectedTab.IsModified)
+                _viewModel.SelectedTab.IsModified = true;
         }
+
+        private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainViewModel.SelectedTab))
+                SyncEditorToSelectedTab();
+        }
+
+        private void SyncEditorToSelectedTab()
+        {
+            if (_syncing) return;
+            _syncing = true;
+
+            if (_viewModel.SelectedTab != null)
+                CodeEditor.Text = _viewModel.SelectedTab.Content;
+            else
+                CodeEditor.Text = "";
+
+            _syncing = false;
+        }
+
+        // ── Project tree double-click ─────────────────────────
+
+        private void ProjectTree_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource is FrameworkElement element
+                && element.DataContext is ProjectItem item
+                && !item.IsDirectory)
+            {
+                _viewModel.AbrirArchivo(item.FullPath);
+            }
+        }
+
+        // ── Close tab button ──────────────────────────────────
+
+        private void CloseTab_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is EditorTab tab)
+                _viewModel.CerrarTab(tab);
+        }
+
+        // ── Logout ────────────────────────────────────────────
 
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
@@ -73,17 +114,5 @@ namespace StudentIDE.Views
             welcome.Show();
             Close();
         }
-
-        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(MainViewModel.CodigoActual))
-            {
-                if (CodeEditor.Text != _viewModel.CodigoActual)
-                {
-                    CodeEditor.Text = _viewModel.CodigoActual;
-                }
-            }
-        }
-
     }
 }

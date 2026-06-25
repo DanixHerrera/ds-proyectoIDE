@@ -17,24 +17,14 @@
 		<converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
 	</Window.Resources>
 
-	<!--
-        ESTRUCTURA PRINCIPAL DE LA VENTANA
-        - Barra superior (menu + acciones)
-         - Zona central (panel de archivos | editor | terminal)
-          -Barra de estado inferior
-    -->
 	<Grid>
 		<Grid.RowDefinitions>
-	
 			<RowDefinition Height="40"/>
-	
 			<RowDefinition Height="*"/>
-	
 			<RowDefinition Height="25"/>
 		</Grid.RowDefinitions>
 
-
-		<!-- FILA 0: Barra superior  -->
+		<!-- FILA 0: Barra superior -->
 		<Border Grid.Row="0" Background="#2D2D2D">
 			<DockPanel LastChildFill="False" VerticalAlignment="Center" Margin="8,0">
 				<StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
@@ -85,46 +75,136 @@
 
 		<!-- ═══════════════════════════════════════════ -->
 		<!-- FILA 1: Zona central dividida en 3 columnas -->
-		<!-- ═══════════════════════════════════════════ -->
 		<Grid Grid.Row="1">
 			<Grid.ColumnDefinitions>
-		
-				<ColumnDefinition Width="200"/>
-		
+				<ColumnDefinition Width="220"/>
 				<ColumnDefinition Width="*"/>
-				
 				<ColumnDefinition Width="340"/>
 			</Grid.ColumnDefinitions>
 
-
-			<!-- COL 0: Panel de archivos/proyectos  -->
+			<!-- COL 0: Panel de proyectos (TreeView) -->
 			<Border Grid.Column="0" Background="#252526" BorderBrush="#3C3C3C" BorderThickness="0,0,1,0">
-				<StackPanel Margin="8">
-					<TextBlock Text="EXPLORADOR" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
-					
-                    
-                    
-					<TextBlock Text="[Panel de proyectos — pendiente]" Foreground="#555" FontSize="11" TextWrapping="Wrap"/>
-				</StackPanel>
+				<Grid Margin="6">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="*"/>
+					</Grid.RowDefinitions>
+
+					<Grid Grid.Row="0" Margin="0,0,0,4">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+						<TextBlock Grid.Column="0" Text="EXPLORADOR" Foreground="#AAA" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+						<Button Grid.Column="1" Content="+"
+								Command="{Binding NuevoArchivoCommand}"
+								Background="Transparent" Foreground="#AAA"
+								BorderBrush="Transparent" FontSize="16"
+								Cursor="Hand" Padding="4,0" ToolTip="Nuevo archivo"/>
+						<Button Grid.Column="2" Content="📁"
+								Command="{Binding NuevaCarpetaCommand}"
+								Background="Transparent" Foreground="#AAA"
+								BorderBrush="Transparent" FontSize="13"
+								Cursor="Hand" Padding="4,0" ToolTip="Nueva carpeta"/>
+						<Button Grid.Column="3" Content="📂"
+								Command="{Binding AbrirProyectoCommand}"
+								Background="Transparent" Foreground="#AAA"
+								BorderBrush="Transparent" FontSize="13"
+								Cursor="Hand" Padding="2" ToolTip="Abrir proyecto"/>
+						<Button Grid.Column="4" Content="✕"
+								Command="{Binding CerrarProyectoCommand}"
+								Background="Transparent" Foreground="#AAA"
+								BorderBrush="Transparent" FontSize="13"
+								Cursor="Hand" Padding="2" ToolTip="Cerrar proyecto"/>
+					</Grid>
+
+					<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+						<TreeView x:Name="ProjectTree"
+								  ItemsSource="{Binding ProjectRoots}"
+								  BorderThickness="0"
+								  Background="Transparent"
+								  MouseDoubleClick="ProjectTree_MouseDoubleClick">
+							<TreeView.ItemTemplate>
+								<HierarchicalDataTemplate ItemsSource="{Binding Children}">
+									<StackPanel Orientation="Horizontal">
+										<TextBlock Text="📁 " Foreground="#E8A828" FontSize="12"
+												   Visibility="{Binding IsDirectory, Converter={StaticResource BoolToVisibility}}"/>
+										<TextBlock Text="📄 " Foreground="#569CD6" FontSize="12"
+												   Visibility="{Binding IsDirectory, Converter={StaticResource InverseBoolToVisibility}}"/>
+										<TextBlock Text="{Binding Name}" Foreground="#CCC" FontSize="12"/>
+									</StackPanel>
+								</HierarchicalDataTemplate>
+							</TreeView.ItemTemplate>
+						</TreeView>
+					</ScrollViewer>
+				</Grid>
 			</Border>
 
-	
-			<!-- COL 1: Editor de código             -->
+			<!-- COL 1: Tab bar + Editor + Terminal -->
 			<Grid Grid.Column="1">
 				<Grid.RowDefinitions>
-			
+					<RowDefinition Height="28"/>
 					<RowDefinition Height="*"/>
-				
 					<RowDefinition Height="5"/>
-		
 					<RowDefinition Height="180"/>
 				</Grid.RowDefinitions>
 
+				<!-- Tab bar -->
+				<ListBox x:Name="TabBar"
+						 Grid.Row="0"
+						 ItemsSource="{Binding OpenTabs}"
+						 SelectedItem="{Binding SelectedTab}"
+						 Background="#1E1E1E"
+						 BorderThickness="0,0,0,1"
+						 BorderBrush="#3C3C3C"
+						 FocusVisualStyle="{x:Null}">
+					<ListBox.ItemsPanel>
+						<ItemsPanelTemplate>
+							<VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
+						</ItemsPanelTemplate>
+					</ListBox.ItemsPanel>
+					<ListBox.ItemContainerStyle>
+						<Style TargetType="ListBoxItem">
+							<Setter Property="Background" Value="Transparent"/>
+							<Setter Property="Padding" Value="0"/>
+							<Setter Property="BorderThickness" Value="0"/>
+							<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+							<Style.Triggers>
+								<Trigger Property="IsSelected" Value="True">
+									<Setter Property="Background" Value="#2D2D2D"/>
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+					</ListBox.ItemContainerStyle>
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Border BorderBrush="#3C3C3C" BorderThickness="0,0,1,0" Padding="10,3">
+								<StackPanel Orientation="Horizontal">
+									<TextBlock Text="{Binding Header}" Foreground="#CCC" FontSize="12"/>
+									<Button Content="×"
+											Tag="{Binding}"
+											Click="CloseTab_Click"
+											Background="Transparent"
+											Foreground="#777"
+											BorderBrush="Transparent"
+											FontSize="12"
+											Margin="6,0,0,0"
+											Padding="1,-1,1,-1"
+											Cursor="Hand"
+											ToolTip="Cerrar"/>
+								</StackPanel>
+							</Border>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
 
-				<!-- COL 1: Editor de código — RF-05                        -->
+				<!-- Editor de codigo -->
 				<avalonedit:TextEditor
                     x:Name="CodeEditor"
-                    Grid.Row="0"
+                    Grid.Row="1"
                     FontFamily="Consolas"
                     FontSize="14"
                     Background="#1E1E1E"
@@ -138,22 +218,22 @@
                     VerticalScrollBarVisibility="Auto"
                     Padding="4,0,0,0"/>
 
-				<!-- Divisor visual entre editor y terminal -->
-				<GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="#3C3C3C"/>
+				<!-- Divisor -->
+				<GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Background="#3C3C3C"/>
 
-				<!-- Terminal interactiva (RF-16) — espacio reservado -->
-				<Border Grid.Row="2" Background="#0C0C0C">
+				<!-- Terminal -->
+				<Border Grid.Row="3" Background="#0C0C0C">
 					<Grid>
 						<Grid.RowDefinitions>
 							<RowDefinition Height="Auto"/>
 							<RowDefinition Height="*"/>
 							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
-						
-						<TextBlock Grid.Row="0" Text="TERMINAL" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="10,6,0,4"/>
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-						    <TextBox Text="{Binding SalidaTerminal, Mode=OneWay}"
-                                     Foreground="#CCCCCC" 
+
+						<TextBlock Grid.Row="0" Text="TERMINAL" Foreground="#AAA" FontSize="11" FontWeight="Bold" Margin="10,6,0,4"/>
+						<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+							<TextBox Text="{Binding SalidaTerminal, Mode=OneWay}"
+                                     Foreground="#CCC"
                                      Background="Transparent"
                                      BorderBrush="Transparent"
                                      IsReadOnly="True"
@@ -162,20 +242,20 @@
                                      FontFamily="Consolas"
                                      FontSize="12"
                                      Margin="10,0"/>
-                        </ScrollViewer>
-						
+						</ScrollViewer>
+
 						<Grid Grid.Row="2">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="Auto"/>
 								<ColumnDefinition Width="*"/>
 								<ColumnDefinition Width="Auto"/>
 							</Grid.ColumnDefinitions>
-							
+
 							<TextBlock Grid.Column="0" Text=">" Foreground="#00FF00" FontFamily="Consolas" FontSize="12" Margin="10,2,5,2" VerticalAlignment="Center"/>
-							
-							<TextBox Grid.Column="1" 
+
+							<TextBox Grid.Column="1"
 							         Text="{Binding InputTerminal, UpdateSourceTrigger=PropertyChanged}"
-							         Foreground="#FFFFFF" 
+							         Foreground="#FFF"
 							         Background="Transparent"
 							         BorderBrush="Transparent"
 							         CaretBrush="White"
@@ -183,14 +263,14 @@
 							         FontSize="12"
 							         Margin="0,2,0,2">
 								<TextBox.InputBindings>
-									<KeyBinding Key="Return" Command="{Binding EnviarTerminalCommand}" />
+									<KeyBinding Key="Return" Command="{Binding EnviarTerminalCommand}"/>
 								</TextBox.InputBindings>
 							</TextBox>
-							
-							<Button Grid.Column="2" 
-							        Content="Enviar" 
+
+							<Button Grid.Column="2"
+							        Content="Enviar"
 							        Command="{Binding EnviarTerminalCommand}"
-							        Background="#3C3C3C" 
+							        Background="#3C3C3C"
 							        Foreground="White"
 							        BorderBrush="Transparent"
 							        Padding="5,1"
@@ -201,7 +281,7 @@
 				</Border>
 			</Grid>
 
-			<!-- COL 2: Panel de tareas con detalle -->
+			<!-- COL 2: Panel de tareas -->
 			<Border Grid.Column="2" Background="#252526" BorderBrush="#3C3C3C" BorderThickness="1,0,0,0">
 				<Grid Margin="8">
 					<Grid.RowDefinitions>
@@ -209,13 +289,12 @@
 						<RowDefinition Height="*"/>
 					</Grid.RowDefinitions>
 
-					<!-- Header con botón Volver -->
 					<Grid Grid.Row="0" Margin="0,0,0,8">
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="*"/>
 							<ColumnDefinition Width="Auto"/>
 						</Grid.ColumnDefinitions>
-						<TextBlock Grid.Column="0" Text="TAREAS" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+						<TextBlock Grid.Column="0" Text="TAREAS" Foreground="#AAA" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
 						<Button Grid.Column="1" Content="← Volver"
 								Command="{Binding CerrarDetalleCommand}"
 								Visibility="{Binding MostrarDetalleTarea, Converter={StaticResource BoolToVisibility}}"
@@ -223,14 +302,12 @@
 								FontSize="11" Cursor="Hand" Padding="4,2"/>
 					</Grid>
 
-					<!-- Lista + Detalle -->
 					<Grid Grid.Row="1">
 						<Grid.RowDefinitions>
 							<RowDefinition Height="Auto"/>
 							<RowDefinition Height="*"/>
 						</Grid.RowDefinitions>
 
-						<!-- Lista de tareas -->
 						<ListBox Grid.Row="0"
 								 ItemsSource="{Binding Tareas}"
 								 SelectedItem="{Binding TareaSeleccionada}"
@@ -239,14 +316,13 @@
 							<ListBox.ItemTemplate>
 								<DataTemplate>
 									<StackPanel Margin="0,4">
-										<TextBlock Text="{Binding Titulo}" FontWeight="Bold" Foreground="White" FontSize="13" />
-										<TextBlock Text="{Binding CursoNombre}" Foreground="#888" FontSize="12" />
+										<TextBlock Text="{Binding Titulo}" FontWeight="Bold" Foreground="White" FontSize="13"/>
+										<TextBlock Text="{Binding CursoNombre}" Foreground="#888" FontSize="12"/>
 									</StackPanel>
 								</DataTemplate>
 							</ListBox.ItemTemplate>
 						</ListBox>
 
-						<!-- Detalle de tarea seleccionada -->
 						<ScrollViewer Grid.Row="1"
 									  Visibility="{Binding MostrarDetalleTarea, Converter={StaticResource BoolToVisibility}}"
 									  Margin="0,8,0,0"
@@ -255,28 +331,21 @@
 								<TextBlock Text="{Binding TareaSeleccionada.Titulo}"
 										   FontSize="18" FontWeight="Bold" Foreground="White"
 										   TextWrapping="Wrap"/>
-
 								<TextBlock Text="{Binding TareaSeleccionada.CursoNombre}"
 										   Foreground="#888" FontSize="13" Margin="0,4,0,0"/>
-
 								<TextBlock Margin="0,14,0,0" Foreground="#AAA" FontSize="12" Text="FECHA LÍMITE"/>
 								<TextBlock Text="{Binding TareaSeleccionada.FechaLimite, StringFormat='{}{0:g}'}"
 										   Foreground="#CCC" FontSize="13"/>
-
 								<TextBlock Margin="0,10,0,0" Foreground="#AAA" FontSize="12" Text="ESTADO"/>
 								<TextBlock Text="{Binding TareaSeleccionada.Estado}"
 										   Foreground="#CCC" FontSize="13"/>
-
 								<TextBlock Margin="0,14,0,0" Foreground="#AAA" FontSize="12" Text="INSTRUCCIONES"/>
 								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
 										CornerRadius="4" Padding="12" Margin="0,4,0,0">
 									<TextBlock Text="{Binding TareaSeleccionada.Instrucciones}"
-											   Foreground="#CCC" FontSize="13"
-											   TextWrapping="Wrap"/>
+											   Foreground="#CCC" FontSize="13" TextWrapping="Wrap"/>
 								</Border>
-
 								<TextBlock Margin="0,14,0,0" Foreground="#AAA" FontSize="12" Text="ARCHIVO ADJUNTO"/>
-
 								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
 										CornerRadius="4" Padding="12" Margin="0,4,0,0"
 										Visibility="{Binding TareaSeleccionada.TieneArchivo, Converter={StaticResource BoolToVisibility}}">
@@ -285,7 +354,6 @@
 											Padding="12,8" Cursor="Hand" FontSize="14"
 											HorizontalAlignment="Stretch" Content="Ver archivo adjunto"/>
 								</Border>
-
 								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
 										CornerRadius="4" Padding="12" Margin="0,4,0,0"
 										Visibility="{Binding TareaSeleccionada.TieneArchivo, Converter={StaticResource InverseBoolToVisibility}}">
@@ -293,24 +361,41 @@
 											   Foreground="#555" FontSize="12"
 											   TextAlignment="Center"/>
 								</Border>
-
 								<TextBlock Margin="0,14,0,0" Foreground="#AAA" FontSize="12" Text="SOLUCIÓN"/>
+
+								<!-- Entregado: mostrar datos de la entrega -->
 								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
-										CornerRadius="4" Padding="16" Margin="0,4,0,0">
-									<TextBlock Text="[Adjuntar solución — pendiente de implementar con panel de proyectos]"
-											   Foreground="#555" FontSize="12"
-											   TextWrapping="Wrap" TextAlignment="Center"/>
+										CornerRadius="4" Padding="12" Margin="0,4,0,0"
+										Visibility="{Binding TareaSeleccionada.TieneEntrega, Converter={StaticResource BoolToVisibility}}">
+									<StackPanel>
+										<TextBlock Foreground="#4EC9B0" FontSize="13" FontWeight="Bold" Text="✓ Entregada"/>
+										<TextBlock Margin="0,4,0,0" Foreground="#888" FontSize="11" Text="{Binding TareaSeleccionada.UltimaEntregaArchivo, StringFormat='Archivo: {0}'}"/>
+										<TextBlock Foreground="#888" FontSize="11" Text="{Binding TareaSeleccionada.UltimaEntregaTimestamp, StringFormat='Fecha: {0}'}"/>
+										<Button Command="{Binding DescargarEntregaCommand}"
+												Background="#3C3C3C" Foreground="White" BorderBrush="#555"
+												Padding="12,8" Cursor="Hand" FontSize="13"
+												HorizontalAlignment="Stretch" Margin="0,8,0,0"
+												Content="Descargar entrega"/>
+									</StackPanel>
+								</Border>
+
+								<!-- No entregado: boton para subir -->
+								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
+										CornerRadius="4" Padding="12" Margin="0,4,0,0"
+										Visibility="{Binding TareaSeleccionada.TieneEntrega, Converter={StaticResource InverseBoolToVisibility}}">
+									<Button Command="{Binding SubirSolucionCommand}"
+											Background="#3C3C3C" Foreground="White" BorderBrush="#555"
+											Padding="12,8" Cursor="Hand" FontSize="14"
+											HorizontalAlignment="Stretch" Content="Subir solución"/>
 								</Border>
 							</StackPanel>
 						</ScrollViewer>
 					</Grid>
 				</Grid>
 			</Border>
+		</Grid>
 
-			</Grid>
-
-		<!-- Barra de estado-->
-
+		<!-- Barra de estado -->
 		<Border Grid.Row="2" Background="#007ACC">
 			<TextBlock Text="{Binding MensajeEstado}"
                        Foreground="White"
@@ -318,6 +403,5 @@
                        VerticalAlignment="Center"
                        Margin="10,0"/>
 		</Border>
-
 	</Grid>
 </Window>

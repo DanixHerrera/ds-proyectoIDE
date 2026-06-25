@@ -126,6 +126,32 @@ const tasks_module = {
         }
     },
 
+    async getTaskSubmissions(taskId) {
+        try {
+            const data = await api.tareas.getSubmissions(taskId);
+            return (data || []).map(s => ({
+                id: s.id,
+                userId: s.user_id,
+                name: s.name,
+                email: s.email,
+                carne: s.carne || '',
+                timestamp: s.timestamp,
+                esTardia: s.es_tardia == 1 || s.es_tardia === true,
+                numeroIntento: s.numero_intento,
+                tiempoTrabajo: s.tiempo_trabajo || 0,
+                 tieneArchivo: s.tiene_archivo || false,
+                nombreArchivo: s.nombre_archivo || null,
+                tamano: s.tamano || 0,
+                downloadUrl: s.download_url
+                    ? (api.baseURL.replace('/api', '') + s.download_url)
+                    : null
+            }));
+        } catch (err) {
+            console.warn('Error cargando entregas:', err.message);
+            return [];
+        }
+    },
+
     async recordSubmission(taskId, studentId, submissionData) {
         console.log('registro de entrega via API - pendiente implementar', {
             taskId, studentId, submissionData

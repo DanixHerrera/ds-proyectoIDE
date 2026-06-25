@@ -29,7 +29,16 @@ function listTasks(object $user): void
                     t.created_at, g.name AS group_name,
                     g.course_id AS course_id, c.name AS course_name,
                     (SELECT COUNT(*) FROM entregas e
-                     WHERE e.tarea_id = t.id AND e.user_id = ?) AS entregas_count
+                     WHERE e.tarea_id = t.id AND e.user_id = ?) AS entregas_count,
+                    (SELECT e.id FROM entregas e
+                     WHERE e.tarea_id = t.id AND e.user_id = ?
+                     ORDER BY e.timestamp DESC LIMIT 1) AS ultima_entrega_id,
+                    (SELECT e.timestamp FROM entregas e
+                     WHERE e.tarea_id = t.id AND e.user_id = ?
+                     ORDER BY e.timestamp DESC LIMIT 1) AS ultima_entrega_timestamp,
+                    (SELECT e.nombre_archivo FROM entregas e
+                     WHERE e.tarea_id = t.id AND e.user_id = ?
+                     ORDER BY e.timestamp DESC LIMIT 1) AS ultima_entrega_archivo
              FROM tareas t
              JOIN `groups` g ON t.group_id = g.id
              JOIN courses c ON g.course_id = c.id
@@ -37,7 +46,7 @@ function listTasks(object $user): void
              WHERE gs.user_id = ?
              ORDER BY t.fecha_limite ASC'
         );
-        $stmt->execute([$user->sub, $user->sub]);
+        $stmt->execute([$user->sub, $user->sub, $user->sub, $user->sub, $user->sub]);
     }
 
     $tasks = $stmt->fetchAll();
@@ -54,13 +63,21 @@ function listTasks(object $user): void
         }
         unset($task['tipo_mime'], $task['tamano']);
 
-        if ($user->role === 'student') {
+        if ($user->role === 'estudiante') {
             if ($task['entregas_count'] > 0) {
                 $task['estado'] = 'entregada';
-            } elseif ($now > $fechaLimite) {
-                $task['estado'] = 'vencida';
+                $task['ultima_entrega_id'] = (int)($task['ultima_entrega_id'] ?? 0);
+                $task['tiene_entrega'] = true;
+                if ($task['ultima_entrega_id'] > 0) {
+                    $task['ultima_entrega_download_url'] = '/api/entregas/' . $task['ultima_entrega_id'] . '/descargar';
+                }
             } else {
-                $task['estado'] = 'pendiente';
+                $task['estado'] = ($now > $fechaLimite) ? 'vencida' : 'pendiente';
+                $task['tiene_entrega'] = false;
+                $task['ultima_entrega_id'] = null;
+                $task['ultima_entrega_timestamp'] = null;
+                $task['ultima_entrega_archivo'] = null;
+                $task['ultima_entrega_download_url'] = null;
             }
         }
     }
@@ -109,7 +126,7 @@ function getTask(int $id, object $user): void
     }
     unset($task['datos']);
 
-    if ($user->role === 'student') {
+    if ($user->role === 'estudiante') {
         $fechaLimite = new DateTime($task['fecha_limite']);
         $now = new DateTime();
         $task['entregas_count'] = (int)($task['entregas_count'] ?? 0);
@@ -328,9 +345,29 @@ function createSubmission(array $data, object $user): void
 
     $tiempoTrabajo = isset($data['tiempo_trabajo']) ? (int)$data['tiempo_trabajo'] : 0;
 
+    // Process archivo (single file as BLOB)
+    $nombreArchivo = null;
+    $tipoMime = null;
+    $tamano = 0;
+    $datos = null;
+
+    if (!empty($data['archivo']) && is_array($data['archivo'])) {
+        $file = $data['archivo'];
+        if (!empty($file['data']) && !empty($file['name'])) {
+            $decoded = base64_decode($file['data'], true);
+            if ($decoded !== false) {
+                $nombreArchivo = $file['name'];
+                $tipoMime = $file['type'] ?? 'application/octet-stream';
+                $tamano = strlen($decoded);
+                $datos = $decoded;
+            }
+        }
+    }
+
     $stmt = $pdo->prepare(
-        'INSERT INTO entregas (tarea_id, user_id, ruta_archivo, timestamp, es_tardia, tiempo_trabajo, numero_intento)
-         VALUES (?, ?, ?, NOW(), ?, ?, ?)'
+        'INSERT INTO entregas (tarea_id, user_id, ruta_archivo, timestamp, es_tardia, tiempo_trabajo, numero_intento,
+                               nombre_archivo, tipo_mime, tamano, datos)
+         VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)'
     );
     $stmt->execute([
         $data['tarea_id'],
@@ -339,6 +376,10 @@ function createSubmission(array $data, object $user): void
         $esTardia ? 1 : 0,
         $tiempoTrabajo,
         $nextAttempt,
+        $nombreArchivo,
+        $tipoMime,
+        $tamano,
+        $datos,
     ]);
 
     $id = $pdo->lastInsertId();
@@ -349,6 +390,7 @@ function createSubmission(array $data, object $user): void
         'timestamp' => date('c'),
         'tardia' => $esTardia,
         'numero_intento' => $nextAttempt,
+        'tiene_archivo' => $nombreArchivo !== null,
     ]);
 }
 
@@ -369,6 +411,11 @@ function getSubmission(int $id): void
         Middleware::errorResponse(404, 'ENTREGA_001', 'Entrega no encontrada');
     }
 
+    $submission['tiene_archivo'] = !empty($submission['nombre_archivo']);
+    $submission['download_url'] = $submission['tiene_archivo']
+        ? '/api/entregas/' . $id . '/descargar' : null;
+    unset($submission['datos']);
+
     echo json_encode($submission);
 }
 
@@ -377,27 +424,47 @@ function listSubmissions(int $tareaId): void
     $pdo = getPDO();
     $stmt = $pdo->prepare(
         'SELECT e.id, e.user_id, u.name, u.email, u.carne,
-                e.timestamp, e.es_tardia, e.numero_intento, e.tiempo_trabajo, e.calificacion
+                e.timestamp, e.es_tardia, e.numero_intento, e.tiempo_trabajo,
+                e.calificacion, e.nombre_archivo, e.tipo_mime, e.tamano
          FROM entregas e
          JOIN users u ON e.user_id = u.id
          WHERE e.tarea_id = ?
          ORDER BY e.timestamp DESC'
     );
     $stmt->execute([$tareaId]);
-    echo json_encode($stmt->fetchAll());
+    $submissions = $stmt->fetchAll();
+
+    foreach ($submissions as &$sub) {
+        $sub['tiene_archivo'] = !empty($sub['nombre_archivo']);
+        $sub['download_url'] = $sub['tiene_archivo']
+            ? '/api/entregas/' . $sub['id'] . '/descargar' : null;
+    }
+    unset($sub);
+
+    echo json_encode($submissions);
 }
 
 function getStudentSubmissions(int $tareaId, int $studentId): void
 {
     $pdo = getPDO();
     $stmt = $pdo->prepare(
-        'SELECT e.id, e.timestamp, e.es_tardia, e.numero_intento, e.tiempo_trabajo, e.calificacion
+        'SELECT e.id, e.timestamp, e.es_tardia, e.numero_intento, e.tiempo_trabajo,
+                e.calificacion, e.nombre_archivo, e.tipo_mime, e.tamano
          FROM entregas e
          WHERE e.tarea_id = ? AND e.user_id = ?
          ORDER BY e.numero_intento ASC'
     );
     $stmt->execute([$tareaId, $studentId]);
-    echo json_encode($stmt->fetchAll());
+    $submissions = $stmt->fetchAll();
+
+    foreach ($submissions as &$sub) {
+        $sub['tiene_archivo'] = !empty($sub['nombre_archivo']);
+        $sub['download_url'] = $sub['tiene_archivo']
+            ? '/api/entregas/' . $sub['id'] . '/descargar' : null;
+    }
+    unset($sub);
+
+    echo json_encode($submissions);
 }
 
 function getStudentSubmissionHistory(int $tareaId, object $user): void
@@ -459,27 +526,49 @@ function downloadTaskFile(int $taskId): void
     exit;
 }
 
-function downloadSubmission(int $id): void
+function downloadSubmission(int $id, object $user): void
 {
     $pdo = getPDO();
-    $stmt = $pdo->prepare('SELECT ruta_archivo FROM entregas WHERE id = ?');
+    $stmt = $pdo->prepare(
+        'SELECT nombre_archivo, tipo_mime, tamano, datos, ruta_archivo, user_id FROM entregas WHERE id = ?'
+    );
     $stmt->execute([$id]);
     $submission = $stmt->fetch();
 
-    if (!$submission || !$submission['ruta_archivo']) {
-        Middleware::errorResponse(404, 'ENTREGA_001', 'Archivo no encontrado');
+    if (!$submission) {
+        Middleware::errorResponse(404, 'ENTREGA_001', 'Entrega no encontrada');
     }
 
-    $filePath = $submission['ruta_archivo'];
-    if (!file_exists($filePath)) {
-        Middleware::errorResponse(404, 'ENTREGA_001', 'Archivo no encontrado en el servidor');
+    // Students can only download their own submissions
+    if ($user->role === 'estudiante' && (int)$submission['user_id'] !== (int)$user->sub) {
+        Middleware::errorResponse(403, 'AUTH_010', 'No puedes descargar entregas de otros estudiantes');
     }
 
-    header('Content-Type: application/zip');
-    header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
-    header('Content-Length: ' . filesize($filePath));
-    readfile($filePath);
-    exit;
+    // Prefer BLOB over filesystem path
+    if (!empty($submission['datos'])) {
+        $filename = $submission['nombre_archivo'] ?? 'solucion.zip';
+        $mime = $submission['tipo_mime'] ?? 'application/octet-stream';
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Length: ' . $submission['tamano']);
+        echo $submission['datos'];
+        exit;
+    }
+
+    // Fallback to filesystem path
+    if (!empty($submission['ruta_archivo'])) {
+        $filePath = $submission['ruta_archivo'];
+        if (!file_exists($filePath)) {
+            Middleware::errorResponse(404, 'ENTREGA_001', 'Archivo no encontrado en el servidor');
+        }
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+        header('Content-Length: ' . filesize($filePath));
+        readfile($filePath);
+        exit;
+    }
+
+    Middleware::errorResponse(404, 'ENTREGA_001', 'Archivo no encontrado');
 }
 
 function getSubmissionTime(int $id): void
