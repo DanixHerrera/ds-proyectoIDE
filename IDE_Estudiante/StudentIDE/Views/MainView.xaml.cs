@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit;
@@ -42,6 +43,19 @@ namespace StudentIDE.Views
             CodeEditor.TextChanged += OnEditorTextChanged;
 
             BloqueadorClipboard.Attach(CodeEditor);
+
+            Loaded += async (s, e) =>
+            {
+                try
+                {
+                    await _viewModel.CargarTareasAsync();
+                    _viewModel.MensajeEstado = $"{_viewModel.Tareas.Count} tarea(s) cargada(s)";
+                }
+                catch
+                {
+                    _viewModel.MensajeEstado = "Error al cargar tareas";
+                }
+            };
         }
 
         //Mantiene CodigoActual en el ViewModel sincronizado con lo que el usuario escribe en el editor AvalonEdit.
@@ -70,5 +84,6 @@ namespace StudentIDE.Views
                 }
             }
         }
+
     }
 }

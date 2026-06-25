@@ -66,6 +66,13 @@ namespace StudentIDE.Services
             return JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         }
 
+        public async Task<byte[]> GetBytesAsync(string endpoint)
+        {
+            var response = await _client.GetAsync(endpoint);
+            await EnsureSuccess(response);
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+
         public async Task DeleteAsync(string endpoint)
         {
             var response = await _client.DeleteAsync(endpoint);

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:converters="clr-namespace:StudentIDE.Converters"
         mc:Ignorable="d"
         Title="StudentIDE"
         Height="700"
@@ -11,11 +12,16 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize">
 
+	<Window.Resources>
+		<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+		<converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
+	</Window.Resources>
+
 	<!--
         ESTRUCTURA PRINCIPAL DE LA VENTANA
         - Barra superior (menu + acciones)
          - Zona central (panel de archivos | editor | terminal)
-         -Barra de estado inferior
+          -Barra de estado inferior
     -->
 	<Grid>
 		<Grid.RowDefinitions>
@@ -87,7 +93,7 @@
 		
 				<ColumnDefinition Width="*"/>
 				
-				<ColumnDefinition Width="250"/>
+				<ColumnDefinition Width="340"/>
 			</Grid.ColumnDefinitions>
 
 
@@ -195,25 +201,110 @@
 				</Border>
 			</Grid>
 
-			<!-- COL 2: Panel de tareas -->
+			<!-- COL 2: Panel de tareas con detalle -->
 			<Border Grid.Column="2" Background="#252526" BorderBrush="#3C3C3C" BorderThickness="1,0,0,0">
-				<StackPanel Margin="8">
-					<TextBlock Text="TAREAS" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
-					<!--lista de tareas y el botón de entrega  -->
-					<TextBlock Text="Panel de tareas" Foreground="#555" FontSize="11" TextWrapping="Wrap"/>
+				<Grid Margin="8">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="*"/>
+					</Grid.RowDefinitions>
 
-        			<ListBox ItemsSource="{Binding Tareas}">
-            			<ListBox.ItemTemplate>
-                			<DataTemplate>
-                    			<StackPanel>
-                        			<TextBlock Text="{Binding Titulo}" />
-                        			<TextBlock Text="{Binding Estado}" />
-                        			<TextBlock Text="{Binding FechaLimite}" />
-                    			</StackPanel>
-                			</DataTemplate>
-            			</ListBox.ItemTemplate>
-       		 		</ListBox>
-    			</StackPanel>
+					<!-- Header con botón Volver -->
+					<Grid Grid.Row="0" Margin="0,0,0,8">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+						<TextBlock Grid.Column="0" Text="TAREAS" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+						<Button Grid.Column="1" Content="← Volver"
+								Command="{Binding CerrarDetalleCommand}"
+								Visibility="{Binding MostrarDetalleTarea, Converter={StaticResource BoolToVisibility}}"
+								Background="Transparent" Foreground="#007ACC" BorderBrush="Transparent"
+								FontSize="11" Cursor="Hand" Padding="4,2"/>
+					</Grid>
+
+					<!-- Lista + Detalle -->
+					<Grid Grid.Row="1">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="*"/>
+						</Grid.RowDefinitions>
+
+						<!-- Lista de tareas -->
+						<ListBox Grid.Row="0"
+								 ItemsSource="{Binding Tareas}"
+								 SelectedItem="{Binding TareaSeleccionada}"
+								 MaxHeight="260"
+								 Background="Transparent" BorderBrush="#3C3C3C">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<StackPanel Margin="0,4">
+										<TextBlock Text="{Binding Titulo}" FontWeight="Bold" Foreground="White" FontSize="13" />
+										<TextBlock Text="{Binding CursoNombre}" Foreground="#888" FontSize="12" />
+									</StackPanel>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+
+						<!-- Detalle de tarea seleccionada -->
+						<ScrollViewer Grid.Row="1"
+									  Visibility="{Binding MostrarDetalleTarea, Converter={StaticResource BoolToVisibility}}"
+									  Margin="0,8,0,0"
+									  VerticalScrollBarVisibility="Auto">
+							<StackPanel>
+								<TextBlock Text="{Binding TareaSeleccionada.Titulo}"
+										   FontSize="18" FontWeight="Bold" Foreground="White"
+										   TextWrapping="Wrap"/>
+
+								<TextBlock Text="{Binding TareaSeleccionada.CursoNombre}"
+										   Foreground="#888" FontSize="13" Margin="0,4,0,0"/>
+
+								<TextBlock Margin="0,14,0,0" Foreground="#AAA" FontSize="12" Text="FECHA LÍMITE"/>
+								<TextBlock Text="{Binding TareaSeleccionada.FechaLimite, StringFormat='{}{0:g}'}"
+										   Foreground="#CCC" FontSize="13"/>
+
+								<TextBlock Margin="0,10,0,0" Foreground="#AAA" FontSize="12" Text="ESTADO"/>
+								<TextBlock Text="{Binding TareaSeleccionada.Estado}"
+										   Foreground="#CCC" FontSize="13"/>
+
+								<TextBlock Margin="0,14,0,0" Foreground="#AAA" FontSize="12" Text="INSTRUCCIONES"/>
+								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
+										CornerRadius="4" Padding="12" Margin="0,4,0,0">
+									<TextBlock Text="{Binding TareaSeleccionada.Instrucciones}"
+											   Foreground="#CCC" FontSize="13"
+											   TextWrapping="Wrap"/>
+								</Border>
+
+								<TextBlock Margin="0,14,0,0" Foreground="#AAA" FontSize="12" Text="ARCHIVO ADJUNTO"/>
+
+								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
+										CornerRadius="4" Padding="12" Margin="0,4,0,0"
+										Visibility="{Binding TareaSeleccionada.TieneArchivo, Converter={StaticResource BoolToVisibility}}">
+									<Button Command="{Binding DescargarArchivoCommand}"
+											Background="#3C3C3C" Foreground="White" BorderBrush="#555"
+											Padding="12,8" Cursor="Hand" FontSize="14"
+											HorizontalAlignment="Stretch" Content="Ver archivo adjunto"/>
+								</Border>
+
+								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
+										CornerRadius="4" Padding="12" Margin="0,4,0,0"
+										Visibility="{Binding TareaSeleccionada.TieneArchivo, Converter={StaticResource InverseBoolToVisibility}}">
+									<TextBlock Text="Sin archivo adjunto"
+											   Foreground="#555" FontSize="12"
+											   TextAlignment="Center"/>
+								</Border>
+
+								<TextBlock Margin="0,14,0,0" Foreground="#AAA" FontSize="12" Text="SOLUCIÓN"/>
+								<Border Background="#1E1E1E" BorderBrush="#3C3C3C" BorderThickness="1"
+										CornerRadius="4" Padding="16" Margin="0,4,0,0">
+									<TextBlock Text="[Adjuntar solución — pendiente de implementar con panel de proyectos]"
+											   Foreground="#555" FontSize="12"
+											   TextWrapping="Wrap" TextAlignment="Center"/>
+								</Border>
+							</StackPanel>
+						</ScrollViewer>
+					</Grid>
+				</Grid>
 			</Border>
 
 			</Grid>

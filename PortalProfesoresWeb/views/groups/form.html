@@ -6,8 +6,8 @@
         <h2 id="groupFormTitle">Crear Nuevo Grupo</h2>
         <form id="createGroupForm">
             <div class="form-group-custom">
-                <label for="groupName">Nombre del Grupo *</label>
-                <input type="text" id="groupName" required>
+                <label for="groupNumber">Número de Grupo *</label>
+                <input type="text" id="groupNumber" required>
             </div>
 
             <div class="form-group-custom">
@@ -74,7 +74,7 @@
             } else {
                 groupTitle.textContent = 'Editar Grupo';
                 groupSubmit.textContent = 'Actualizar Grupo';
-                document.getElementById('groupName').value = group.name || '';
+                document.getElementById('groupNumber').value = group.name || '';
                 document.getElementById('groupCourse').value = String(group.courseId || '');
                 document.getElementById('groupDescription').value = group.description || '';
                 document.getElementById('groupCapacity').value = group.capacity || '';
@@ -86,7 +86,7 @@
         e.preventDefault();
 
         const groupData = {
-            name: document.getElementById('groupName').value,
+            name: document.getElementById('groupNumber').value,
             courseId: document.getElementById('groupCourse').value,
             description: document.getElementById('groupDescription').value,
             capacity: parseInt(document.getElementById('groupCapacity').value) || null

@@ -32,6 +32,8 @@ namespace StudentIDE.ViewModels
             AbrirCommand = new AtajoTeclado(Abrir);
             EjecutarCommand = new AtajoTeclado(Ejecutar);
             EnviarTerminalCommand = new AtajoTeclado(EnviarTerminal);
+            CerrarDetalleCommand = new AtajoTeclado(CerrarDetalle);
+            DescargarArchivoCommand = new AtajoTeclado(DescargarArchivo);
             MensajeEstado = "Listo";
             _signService = new FirmaDigitalController();
         }
@@ -198,6 +200,44 @@ namespace StudentIDE.ViewModels
                 SalidaTerminal += InputTerminal + Environment.NewLine;
                 _pythonRunnerService.EscribirInput(InputTerminal);
                 InputTerminal = "";
+            }
+        }
+
+        //Detalle de tarea ─────────────────────
+        private Tarea? _tareaSeleccionada;
+        public Tarea? TareaSeleccionada
+        {
+            get => _tareaSeleccionada;
+            set
+            {
+                _tareaSeleccionada = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MostrarDetalleTarea));
+            }
+        }
+
+        public bool MostrarDetalleTarea => TareaSeleccionada != null;
+
+        public ICommand CerrarDetalleCommand { get; }
+        public ICommand DescargarArchivoCommand { get; }
+
+        private void CerrarDetalle()
+        {
+            TareaSeleccionada = null;
+        }
+
+        private async void DescargarArchivo()
+        {
+            if (TareaSeleccionada == null || !TareaSeleccionada.TieneArchivo) return;
+            try
+            {
+                MensajeEstado = "Descargando archivo adjunto...";
+                await _taskService.DescargarArchivoAsync(TareaSeleccionada);
+                MensajeEstado = "Archivo descargado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                MensajeEstado = $"Error al descargar: {ex.Message}";
             }
         }
 
