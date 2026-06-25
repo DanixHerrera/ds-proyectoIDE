@@ -6,6 +6,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using StudentIDE.Utils;
 using StudentIDE.Controllers;
+using System.Collections.ObjectModel;
 
 namespace StudentIDE.ViewModels
 {
