@@ -128,71 +128,88 @@ function getTask(int $id, object $user): void
 
 function createTask(array $data): void
 {
-    if (empty($data['group_id']) || empty($data['titulo']) || empty($data['fecha_limite'])) {
-        Middleware::errorResponse(400, 'AUTH_006', 'Campos requeridos: group_id, titulo, fecha_limite');
-    }
+    try {
+        if (empty($data['group_id']) || empty($data['titulo']) || empty($data['fecha_limite'])) {
+            Middleware::errorResponse(400, 'AUTH_006', 'Campos requeridos: group_id, titulo, fecha_limite');
+        }
 
-    $fechaLimite = new DateTime($data['fecha_limite']);
-    $now = new DateTime();
-    if ($fechaLimite <= $now) {
-        Middleware::errorResponse(400, 'TAREA_001', 'La fecha límite debe ser futura');
-    }
+        try {
+            $fechaLimite = new DateTime($data['fecha_limite']);
+        } catch (Throwable $e) {
+            Middleware::errorResponse(400, 'TAREA_004', 'Fecha límite inválida: ' . $e->getMessage());
+        }
+        $now = new DateTime();
+        if ($fechaLimite <= $now) {
+            Middleware::errorResponse(400, 'TAREA_001', 'La fecha límite debe ser futura');
+        }
 
-    $pdo = getPDO();
+        $pdo = getPDO();
 
-    $stmt = $pdo->prepare('SELECT id FROM `groups` WHERE id = ?');
-    $stmt->execute([$data['group_id']]);
-    if (!$stmt->fetch()) {
-        Middleware::errorResponse(404, 'GRUPO_004', 'Grupo no encontrado');
-    }
+        $stmt = $pdo->prepare('SELECT id FROM `groups` WHERE id = ?');
+        $stmt->execute([$data['group_id']]);
+        if (!$stmt->fetch()) {
+            Middleware::errorResponse(404, 'GRUPO_004', 'Grupo no encontrado');
+        }
 
-    $user = Middleware::authMiddleware();
+        $user = Middleware::authMiddleware();
 
-    // Process archivo (single file as BLOB)
-    $nombreArchivo = null;
-    $tipoMime = null;
-    $tamano = 0;
-    $datos = null;
+        // Verify profesor exists in users table
+        $stmt = $pdo->prepare('SELECT id FROM users WHERE id = ?');
+        $stmt->execute([$user->sub]);
+        if (!$stmt->fetch()) {
+            Middleware::errorResponse(400, 'AUTH_012', 'El usuario autenticado no existe en la base de datos');
+        }
 
-    if (!empty($data['archivo']) && is_array($data['archivo'])) {
-        $file = $data['archivo'];
-        if (!empty($file['data']) && !empty($file['name'])) {
-            $decoded = base64_decode($file['data'], true);
-            if ($decoded !== false) {
-                $nombreArchivo = $file['name'];
-                $tipoMime = $file['type'] ?? 'application/octet-stream';
-                $tamano = strlen($decoded);
-                $datos = $decoded;
+        // Process archivo (single file as BLOB)
+        $nombreArchivo = null;
+        $tipoMime = null;
+        $tamano = 0;
+        $datos = null;
+
+        if (!empty($data['archivo']) && is_array($data['archivo'])) {
+            $file = $data['archivo'];
+            if (!empty($file['data']) && !empty($file['name'])) {
+                $decoded = base64_decode($file['data'], true);
+                if ($decoded !== false) {
+                    $nombreArchivo = $file['name'];
+                    $tipoMime = $file['type'] ?? 'application/octet-stream';
+                    $tamano = strlen($decoded);
+                    $datos = $decoded;
+                }
             }
         }
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO tareas (group_id, profesor_id, titulo, descripcion, fecha_limite,
+                                 nombre_archivo, tipo_mime, tamano, datos, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())'
+        );
+        $stmt->execute([
+            $data['group_id'],
+            $user->sub,
+            $data['titulo'],
+            $data['descripcion'] ?? null,
+            $fechaLimite->format('Y-m-d H:i:s'),
+            $nombreArchivo,
+            $tipoMime,
+            $tamano,
+            $datos,
+        ]);
+
+        $id = $pdo->lastInsertId();
+        http_response_code(201);
+        echo json_encode([
+            'id' => (int)$id,
+            'titulo' => $data['titulo'],
+            'group_id' => (int)$data['group_id'],
+            'fecha_limite' => $data['fecha_limite'],
+            'tiene_archivo' => $nombreArchivo !== null,
+        ]);
+    } catch (PDOException $e) {
+        Middleware::errorResponse(500, 'DB_001', 'Error de base de datos: ' . $e->getMessage());
+    } catch (Throwable $e) {
+        Middleware::errorResponse(500, 'SYS_001', 'Error interno: ' . $e->getMessage());
     }
-
-    $stmt = $pdo->prepare(
-        'INSERT INTO tareas (group_id, profesor_id, titulo, descripcion, fecha_limite,
-                             nombre_archivo, tipo_mime, tamano, datos, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())'
-    );
-    $stmt->execute([
-        $data['group_id'],
-        $user->sub,
-        $data['titulo'],
-        $data['descripcion'] ?? null,
-        $fechaLimite->format('Y-m-d H:i:s'),
-        $nombreArchivo,
-        $tipoMime,
-        $tamano,
-        $datos,
-    ]);
-
-    $id = $pdo->lastInsertId();
-    http_response_code(201);
-    echo json_encode([
-        'id' => (int)$id,
-        'titulo' => $data['titulo'],
-        'group_id' => (int)$data['group_id'],
-        'fecha_limite' => $data['fecha_limite'],
-        'tiene_archivo' => $nombreArchivo !== null,
-    ]);
 }
 
 function updateTask(int $id, array $data): void
