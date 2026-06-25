@@ -115,8 +115,17 @@ namespace StudentIDE.ViewModels
             if (dialogo.ShowDialog() == true)
             {
                 string ruta = dialogo.FileName;
-                CodigoActual = File.ReadAllText(ruta);
-                MensajeEstado = $"Archivo abierto | {ruta}";
+                string CodigoActual = File.ReadAllText(ruta);
+                if (_signService.VerificarFirma(ruta, CodigoActual)) {
+                    MensajeEstado = $"Archivo abierto | {ruta}";
+                } else {
+                    MessageBox.Show(
+                    $"No se pudo abrir el archivo porque las firmas no coinciden",
+                    "Error al abrir archivo",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+                }
             }
         }
 
