@@ -200,11 +200,23 @@
 				<StackPanel Margin="8">
 					<TextBlock Text="TAREAS" Foreground="#AAAAAA" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
 					<!--lista de tareas y el botón de entrega  -->
-					<TextBlock Text="[Panel de tareas — pendiente]" Foreground="#555" FontSize="11" TextWrapping="Wrap"/>
-				</StackPanel>
+					<TextBlock Text="Panel de tareas" Foreground="#555" FontSize="11" TextWrapping="Wrap"/>
+
+        			<ListBox ItemsSource="{Binding Tareas}">
+            			<ListBox.ItemTemplate>
+                			<DataTemplate>
+                    			<StackPanel>
+                        			<TextBlock Text="{Binding Titulo}" />
+                        			<TextBlock Text="{Binding Estado}" />
+                        			<TextBlock Text="{Binding FechaLimite}" />
+                    			</StackPanel>
+                			</DataTemplate>
+            			</ListBox.ItemTemplate>
+       		 		</ListBox>
+    			</StackPanel>
 			</Border>
 
-		</Grid>
+			</Grid>
 
 		<!-- Barra de estado-->
 
