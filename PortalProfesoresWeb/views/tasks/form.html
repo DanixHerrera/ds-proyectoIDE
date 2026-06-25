@@ -30,8 +30,8 @@
             </div>
 
             <div class="form-group-custom">
-                <label for="taskAttachments">Adjuntar archivos</label>
-                <input type="file" id="taskAttachments" multiple>
+                <label for="taskAttachments">Adjuntar archivo</label>
+                <input type="file" id="taskAttachments">
                 <ul id="attachmentsList" class="attachments-list"></ul>
             </div>
 
@@ -91,19 +91,46 @@
     const editTaskId = taskParams ? parseInt(taskParams.id || taskParams) : null;
     const taskTitle = document.getElementById('taskFormTitle');
     const taskSubmit = document.getElementById('submitTaskBtn');
-    let existingAttachments = [];
+
+    let existingFile = null;
+    let newFile = null;
+    let fileRemoved = false;
 
 
-    function renderAttachmentsList() {
+    function formatFileSize(bytes) {
+        if (!bytes) return '';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function renderFileStatus() {
         const list = document.getElementById('attachmentsList');
         if (!list) return;
-        list.innerHTML = existingAttachments.map((a, idx) => `
-            <li data-idx="${idx}">
-                <a href="data:${a.type};base64,${a.data}" download="${a.name}">${a.name}</a>
-                <button type="button" class="btn-delete-small" onclick="(function(){ existingAttachments.splice(${idx},1); renderAttachmentsList(); })()">Eliminar</button>
-            </li>
-        `).join('');
+        if (existingFile && !fileRemoved) {
+            list.innerHTML = '<li>' +
+                '<a href="' + existingFile.downloadUrl + '" download="' + existingFile.name + '">' + existingFile.name + (existingFile.size ? ' (' + formatFileSize(existingFile.size) + ')' : '') + '</a> ' +
+                '<button type="button" class="btn-delete-small" onclick="removeExistingFile()">Eliminar</button>' +
+                '</li>';
+        } else if (newFile) {
+            list.innerHTML = '<li>' +
+                '<span>' + newFile.name + ' (' + formatFileSize(newFile.size) + ')</span> ' +
+                '<button type="button" class="btn-delete-small" onclick="removeNewFile()">Eliminar</button>' +
+                '</li>';
+        } else {
+            list.innerHTML = '';
+        }
     }
+
+    window.removeExistingFile = function() {
+        fileRemoved = true;
+        renderFileStatus();
+    };
+
+    window.removeNewFile = function() {
+        newFile = null;
+        renderFileStatus();
+    };
 
     if (editTaskId) {
         (async () => {
@@ -119,36 +146,42 @@
                 document.getElementById('taskGroup').value = task.groupId ? String(task.groupId) : '';
                 document.getElementById('taskDescription').value = task.description || '';
                 document.getElementById('taskDueDate').value = task.dueDate ? task.dueDate.slice(0, 16) : '';
-                if (task.attachments && Array.isArray(task.attachments)) {
-                    existingAttachments = task.attachments.slice();
-                    renderAttachmentsList();
+                if (task.tieneArchivo && task.downloadUrl) {
+                    existingFile = { name: task.nombreArchivo, size: task.tamano, downloadUrl: task.downloadUrl };
+                    renderFileStatus();
                 }
             }
         })();
     }
 
-    async function readFilesAsBase64(files) {
-        const results = [];
-        for (const f of files) {
-            const data = await new Promise((res, rej) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const base64 = reader.result.split(',')[1];
-                    res({ name: f.name, type: f.type || 'application/octet-stream', size: f.size, data: base64 });
-                };
-                reader.onerror = () => rej(reader.error);
-                reader.readAsDataURL(f);
-            });
-            results.push(data);
-        }
-        return results;
+    async function readFileAsBase64(file) {
+        return new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1];
+                res({ name: file.name, type: file.type || 'application/octet-stream', size: file.size, data: base64 });
+            };
+            reader.onerror = () => rej(reader.error);
+            reader.readAsDataURL(file);
+        });
     }
+
+    document.getElementById('taskAttachments').addEventListener('change', async function() {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        try {
+            newFile = await readFileAsBase64(file);
+            fileRemoved = false;
+            renderFileStatus();
+            this.value = '';
+        } catch (err) {
+            console.error('Error leyendo archivo:', err);
+            app.showAlert('Error al leer archivo adjunto', 'error');
+        }
+    });
 
     document.getElementById('createTaskForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-
-        const fileInput = document.getElementById('taskAttachments');
-        const selectedFiles = fileInput ? Array.from(fileInput.files) : [];
 
         const taskData = {
             title: document.getElementById('taskTitle').value,
@@ -159,18 +192,23 @@
         };
 
         try {
-            const newAttachments = await readFilesAsBase64(selectedFiles);
-            taskData.attachments = existingAttachments.concat(newAttachments);
-
             if (editTaskId) {
-                await tasks_module.updateTask(editTaskId, taskData);
+                if (fileRemoved) {
+                    taskData.eliminarArchivo = true;
+                } else if (newFile) {
+                    taskData.archivo = newFile;
+                }
+                if (fileRemoved || newFile || document.getElementById('taskTitle').value) {
+                    await tasks_module.updateTask(editTaskId, taskData);
+                }
                 setTimeout(() => app.navigate('tasks'), 800);
             } else {
+                taskData.archivo = newFile;
                 await tasks_module.createTask(taskData);
             }
         } catch (err) {
-            console.error('Error leyendo archivos:', err);
-            app.showAlert('Error al procesar archivos adjuntos', 'error');
+            console.error('Error al guardar tarea:', err);
+            app.showAlert('Error al procesar los datos', 'error');
         }
     });
 </script>

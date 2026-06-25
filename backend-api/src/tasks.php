@@ -10,10 +10,10 @@ function listTasks(object $user): void
     $pdo = getPDO();
 
     if ($user->role === 'profesor') {
-        // Professor: all tasks they created
         $stmt = $pdo->prepare(
             'SELECT t.id, t.group_id, t.profesor_id, t.titulo, t.descripcion,
-                    t.fecha_limite, t.created_at, g.name AS group_name,
+                    t.fecha_limite, t.nombre_archivo, t.tipo_mime, t.tamano,
+                    t.created_at, g.name AS group_name,
                     g.course_id AS course_id, c.name AS course_name
              FROM tareas t
              JOIN `groups` g ON t.group_id = g.id
@@ -23,10 +23,10 @@ function listTasks(object $user): void
         );
         $stmt->execute([$user->sub]);
     } else {
-        // Student: tasks from their groups
         $stmt = $pdo->prepare(
             'SELECT t.id, t.group_id, t.titulo, t.descripcion,
-                    t.fecha_limite, t.created_at, g.name AS group_name,
+                    t.fecha_limite, t.nombre_archivo, t.tipo_mime, t.tamano,
+                    t.created_at, g.name AS group_name,
                     g.course_id AS course_id, c.name AS course_name,
                     (SELECT COUNT(*) FROM entregas e
                      WHERE e.tarea_id = t.id AND e.user_id = ?) AS entregas_count
@@ -42,11 +42,17 @@ function listTasks(object $user): void
 
     $tasks = $stmt->fetchAll();
 
-    // Calculate estado for each task
     $now = new DateTime();
     foreach ($tasks as &$task) {
         $fechaLimite = new DateTime($task['fecha_limite']);
         $task['entregas_count'] = (int)($task['entregas_count'] ?? 0);
+        $task['tiene_archivo'] = !empty($task['nombre_archivo']);
+        if ($task['tiene_archivo']) {
+            $task['download_url'] = '/api/tareas/' . $task['id'] . '/descargar';
+        } else {
+            $task['download_url'] = null;
+        }
+        unset($task['tipo_mime'], $task['tamano']);
 
         if ($user->role === 'student') {
             if ($task['entregas_count'] > 0) {
@@ -94,6 +100,15 @@ function getTask(int $id, object $user): void
         Middleware::errorResponse(404, 'TAREA_002', 'Tarea no encontrada o no autorizada');
     }
 
+    // Build file metadata (exclude BLOB from JSON)
+    $task['tiene_archivo'] = !empty($task['nombre_archivo']);
+    if ($task['tiene_archivo']) {
+        $task['download_url'] = '/api/tareas/' . $id . '/descargar';
+    } else {
+        $task['download_url'] = null;
+    }
+    unset($task['datos']);
+
     if ($user->role === 'student') {
         $fechaLimite = new DateTime($task['fecha_limite']);
         $now = new DateTime();
@@ -125,19 +140,37 @@ function createTask(array $data): void
 
     $pdo = getPDO();
 
-    // Verify group exists
     $stmt = $pdo->prepare('SELECT id FROM `groups` WHERE id = ?');
     $stmt->execute([$data['group_id']]);
     if (!$stmt->fetch()) {
         Middleware::errorResponse(404, 'GRUPO_004', 'Grupo no encontrado');
     }
 
-    // Get profesor_id from JWT (set in the request)
     $user = Middleware::authMiddleware();
 
+    // Process archivo (single file as BLOB)
+    $nombreArchivo = null;
+    $tipoMime = null;
+    $tamano = 0;
+    $datos = null;
+
+    if (!empty($data['archivo']) && is_array($data['archivo'])) {
+        $file = $data['archivo'];
+        if (!empty($file['data']) && !empty($file['name'])) {
+            $decoded = base64_decode($file['data'], true);
+            if ($decoded !== false) {
+                $nombreArchivo = $file['name'];
+                $tipoMime = $file['type'] ?? 'application/octet-stream';
+                $tamano = strlen($decoded);
+                $datos = $decoded;
+            }
+        }
+    }
+
     $stmt = $pdo->prepare(
-        'INSERT INTO tareas (group_id, profesor_id, titulo, descripcion, fecha_limite, ruta_instrucciones, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, NOW())'
+        'INSERT INTO tareas (group_id, profesor_id, titulo, descripcion, fecha_limite,
+                             nombre_archivo, tipo_mime, tamano, datos, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())'
     );
     $stmt->execute([
         $data['group_id'],
@@ -145,7 +178,10 @@ function createTask(array $data): void
         $data['titulo'],
         $data['descripcion'] ?? null,
         $fechaLimite->format('Y-m-d H:i:s'),
-        $data['ruta_instrucciones'] ?? null,
+        $nombreArchivo,
+        $tipoMime,
+        $tamano,
+        $datos,
     ]);
 
     $id = $pdo->lastInsertId();
@@ -155,6 +191,7 @@ function createTask(array $data): void
         'titulo' => $data['titulo'],
         'group_id' => (int)$data['group_id'],
         'fecha_limite' => $data['fecha_limite'],
+        'tiene_archivo' => $nombreArchivo !== null,
     ]);
 }
 
@@ -162,7 +199,6 @@ function updateTask(int $id, array $data): void
 {
     $pdo = getPDO();
 
-    // Check if task has submissions already
     $stmt = $pdo->prepare('SELECT COUNT(*) AS cnt FROM entregas WHERE tarea_id = ?');
     $stmt->execute([$id]);
     $result = $stmt->fetch();
@@ -186,9 +222,28 @@ function updateTask(int $id, array $data): void
         $dt = new DateTime($data['fecha_limite']);
         $params[] = $dt->format('Y-m-d H:i:s');
     }
-    if (array_key_exists('ruta_instrucciones', $data)) {
-        $fields[] = 'ruta_instrucciones = ?';
-        $params[] = $data['ruta_instrucciones'];
+
+    // Handle file: new file or remove existing
+    if (isset($data['eliminar_archivo']) && $data['eliminar_archivo'] === true) {
+        $fields[] = 'nombre_archivo = NULL';
+        $fields[] = 'tipo_mime = NULL';
+        $fields[] = 'tamano = 0';
+        $fields[] = 'datos = NULL';
+    } elseif (!empty($data['archivo']) && is_array($data['archivo'])) {
+        $file = $data['archivo'];
+        if (!empty($file['data']) && !empty($file['name'])) {
+            $decoded = base64_decode($file['data'], true);
+            if ($decoded !== false) {
+                $fields[] = 'nombre_archivo = ?';
+                $params[] = $file['name'];
+                $fields[] = 'tipo_mime = ?';
+                $params[] = $file['type'] ?? 'application/octet-stream';
+                $fields[] = 'tamano = ?';
+                $params[] = strlen($decoded);
+                $fields[] = 'datos = ?';
+                $params[] = $decoded;
+            }
+        }
     }
 
     if (empty($fields)) {
@@ -230,7 +285,6 @@ function createSubmission(array $data, object $user): void
 
     $pdo = getPDO();
 
-    // Verify task exists and student belongs to the group
     $stmt = $pdo->prepare(
         'SELECT t.id, t.fecha_limite, gs.user_id
          FROM tareas t
@@ -244,7 +298,6 @@ function createSubmission(array $data, object $user): void
         Middleware::errorResponse(403, 'AUTH_011', 'No perteneces al grupo de esta tarea');
     }
 
-    // Determine attempt number
     $stmt = $pdo->prepare(
         'SELECT MAX(numero_intento) AS max_intento FROM entregas WHERE tarea_id = ? AND user_id = ?'
     );
@@ -252,7 +305,6 @@ function createSubmission(array $data, object $user): void
     $result = $stmt->fetch();
     $nextAttempt = ($result && $result['max_intento']) ? (int)$result['max_intento'] + 1 : 1;
 
-    // Check if late
     $fechaLimite = new DateTime($task['fecha_limite']);
     $now = new DateTime();
     $esTardia = $now > $fechaLimite;
@@ -368,6 +420,26 @@ function getSubmissionBitacora(int $id): void
     );
     $stmt->execute([$id]);
     echo json_encode($stmt->fetchAll());
+}
+
+function downloadTaskFile(int $taskId): void
+{
+    $pdo = getPDO();
+    $stmt = $pdo->prepare(
+        'SELECT nombre_archivo, tipo_mime, datos FROM tareas WHERE id = ?'
+    );
+    $stmt->execute([$taskId]);
+    $task = $stmt->fetch();
+
+    if (!$task || empty($task['nombre_archivo'])) {
+        Middleware::errorResponse(404, 'ARCHIVO_001', 'Archivo no encontrado');
+    }
+
+    header('Content-Type: ' . $task['tipo_mime']);
+    header('Content-Disposition: attachment; filename="' . $task['nombre_archivo'] . '"');
+    header('Content-Length: ' . $task['tamano']);
+    echo $task['datos'];
+    exit;
 }
 
 function downloadSubmission(int $id): void

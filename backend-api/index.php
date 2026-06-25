@@ -147,6 +147,13 @@ switch ($resource) {
         $id = isset($segments[2]) ? (int)$segments[2] : null;
         $subResource = $segments[3] ?? null; // 'entregas'
 
+        // /api/tareas/{id}/descargar
+        if ($id && $subResource === 'descargar') {
+            $authUser = Middleware::authMiddleware();
+            downloadTaskFile($id);
+            exit;
+        }
+
         // /api/tareas/{id}/entregas[/{studentId}]
         if ($id && $subResource === 'entregas') {
             $roleCheck = Middleware::roleMiddleware('profesor');

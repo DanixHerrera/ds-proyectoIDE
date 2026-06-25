@@ -1,4 +1,3 @@
-// Task Controller - CRUD via API
 const tasks_module = {
     _tasks: [],
     _loaded: false,
@@ -17,7 +16,8 @@ const tasks_module = {
                 title: t.titulo,
                 description: t.descripcion || '',
                 dueDate: t.fecha_limite,
-                attachments: [],
+                tieneArchivo: t.tiene_archivo || false,
+                downloadUrl: t.download_url || null,
                 createdAt: t.created_at || ''
             }));
         } catch (err) {
@@ -47,8 +47,31 @@ const tasks_module = {
     },
 
     async getTaskById(id) {
-        await this._ensureLoaded();
-        return this._tasks.find(t => t.id == id) || null;
+        try {
+            const data = await api.tareas.getById(id);
+            return {
+                id: data.id,
+                professorId: data.professor_id,
+                courseId: data.course_id,
+                courseName: data.course_name || '',
+                groupId: data.group_id,
+                groupName: data.group_name || '',
+                title: data.titulo,
+                description: data.descripcion || '',
+                dueDate: data.fecha_limite,
+                tieneArchivo: data.tiene_archivo || false,
+                nombreArchivo: data.nombre_archivo || null,
+                tipoMime: data.tipo_mime || null,
+                tamano: data.tamano || 0,
+                downloadUrl: data.download_url
+                    ? (api.baseURL.replace('/api', '') + data.download_url)
+                    : null,
+                createdAt: data.created_at || ''
+            };
+        } catch (err) {
+            console.warn('Error fetching task:', err.message);
+            return null;
+        }
     },
 
     async createTask(taskData) {
@@ -59,6 +82,9 @@ const tasks_module = {
                 descripcion: taskData.description || '',
                 fecha_limite: taskData.dueDate.replace('T', ' ') + ':00'
             };
+            if (taskData.archivo) {
+                body.archivo = taskData.archivo;
+            }
             await api.tareas.create(body);
             this._invalidateCache();
             app.showAlert('Tarea creada exitosamente', 'success');
@@ -75,6 +101,11 @@ const tasks_module = {
             if (taskData.descripcion || taskData.description) body.descripcion = taskData.descripcion || taskData.description;
             if (taskData.dueDate) body.fecha_limite = taskData.dueDate.replace('T', ' ') + ':00';
             if (taskData.groupId) body.group_id = parseInt(taskData.groupId);
+            if (taskData.eliminarArchivo) {
+                body.eliminar_archivo = true;
+            } else if (taskData.archivo) {
+                body.archivo = taskData.archivo;
+            }
             await api.tareas.update(id, body);
             this._invalidateCache();
             app.showAlert('Tarea actualizada exitosamente', 'success');

@@ -36,12 +36,18 @@
             const dueDate = task.dueDate ? new Date(task.dueDate) : null;
             const group = task.groupId ? await groups_module.getGroupById(task.groupId) : null;
             const groupDisplay = group ? group.name : 'Todos los estudiantes del curso';
+
+            function formatFileSize(bytes) {
+                if (!bytes) return '';
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / 1048576).toFixed(1) + ' MB';
+            }
+
             var attachmentsHtml = '';
-            if (task.attachments && Array.isArray(task.attachments) && task.attachments.length > 0) {
-                attachmentsHtml = '<div class="attachments-section"><h4>Archivos adjuntos</h4><ul>' +
-                    task.attachments.map(function(a) {
-                        return '<li><a href="data:' + a.type + ';base64,' + a.data + '" download="' + a.name + '">' + a.name + '</a></li>';
-                    }).join('') +
+            if (task.tieneArchivo && task.downloadUrl) {
+                attachmentsHtml = '<div class="attachments-section"><h4>Archivo adjunto</h4><ul>' +
+                    '<li><a href="' + task.downloadUrl + '" download="' + (task.nombreArchivo || 'archivo') + '">' + (task.nombreArchivo || 'Descargar') + (task.tamano ? ' (' + formatFileSize(task.tamano) + ')' : '') + '</a></li>' +
                     '</ul></div>';
             }
 

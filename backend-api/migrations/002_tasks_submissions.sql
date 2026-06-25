@@ -1,7 +1,4 @@
--- Migration 002: Add password, carné, tasks, submissions, commits, and audit log
-
--- Safely add columns if they don't exist (idempotent)
-SET @s = (SELECT IF(
+sSET @s = (SELECT IF(
   (SELECT COUNT(*) FROM information_schema.columns
    WHERE table_schema = DATABASE() AND table_name = 'users' AND column_name = 'password') = 0,
   'ALTER TABLE users ADD COLUMN password VARCHAR(255) NOT NULL DEFAULT '' AFTER email',

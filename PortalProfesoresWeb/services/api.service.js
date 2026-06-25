@@ -79,7 +79,8 @@ const api = {
         delete: (id) => api.request(`/tareas/${id}`, { method: 'DELETE' }),
         getSubmissions: (taskId) => api.request(`/tareas/${taskId}/entregas`),
         getStudentSubmissions: (taskId, studentId) =>
-            api.request(`/tareas/${taskId}/entregas/${studentId}`)
+            api.request(`/tareas/${taskId}/entregas/${studentId}`),
+        getDownloadUrl: (taskId) => `${api.baseURL}/tareas/${taskId}/descargar`
     },
 
     estudiantes: {
