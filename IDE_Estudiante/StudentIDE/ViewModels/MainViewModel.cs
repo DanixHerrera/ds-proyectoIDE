@@ -17,6 +17,8 @@ namespace StudentIDE.ViewModels
         private readonly ArchivoController _fileService;
         private readonly InterpretePythonController _pythonRunnerService;
 
+        private readonly FirmaDigitalController _signService;
+
         public MainViewModel()
         {
             _fileService = new ArchivoController();
@@ -26,11 +28,12 @@ namespace StudentIDE.ViewModels
             EjecutarCommand = new AtajoTeclado(Ejecutar);
             EnviarTerminalCommand = new AtajoTeclado(EnviarTerminal);
             MensajeEstado = "Listo";
+            _signService = new FirmaDigitalController();
         }
 
         // Contenido del editor ────────────────────────────────
 
-        private string _codigoActual = "# Bienvenido a StudentIDE\n# Abre o crea un archivo para comenzar";
+        private string _codigoActual = "# Bienvenido a Crystal IDE\n# Abre o crea un archivo para comenzar";
         public string CodigoActual
         {
             get => _codigoActual;
@@ -115,18 +118,21 @@ namespace StudentIDE.ViewModels
             if (dialogo.ShowDialog() == true)
             {
                 string ruta = dialogo.FileName;
-                string CodigoActual = File.ReadAllText(ruta);
+                CodigoActual = File.ReadAllText(ruta);
                 if (_signService.VerificarFirma(ruta, CodigoActual)) {
                     MensajeEstado = $"Archivo abierto | {ruta}";
                 } else {
+                    CodigoActual = "# Bienvenido a Crystal IDE\n# Abre o crea un archivo para comenzar";
                     MessageBox.Show(
                     $"No se pudo abrir el archivo porque las firmas no coinciden",
                     "Error al abrir archivo",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error
+                
                 );
                 }
             }
+
         }
 
         private async void Ejecutar()

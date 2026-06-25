@@ -22,13 +22,14 @@ namespace StudentIDE
             if (!string.IsNullOrEmpty(token))
             {
                 Api.SetToken(token);
-                var mainView = new MainView();
-                mainView.Show();
+
+                var welcomeView = new WelcomeView();
+                welcomeView.Show();
             }
             else
             {
-                var welcomeView = new WelcomeView();
-                welcomeView.Show();
+                var mainView = new MainView();
+                mainView.Show();
             }
         }
 
