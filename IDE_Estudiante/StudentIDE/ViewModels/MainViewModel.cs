@@ -16,11 +16,14 @@ namespace StudentIDE.ViewModels
     {
         private readonly ArchivoController _fileService;
         private readonly InterpretePythonController _pythonRunnerService;
-
+        private TareaController _taskService;
         private readonly FirmaDigitalController _signService;
+        
+        public ObservableCollection<Tarea> Tareas { get; } = new();
 
         public MainViewModel()
         {
+            _taskService = new TareaController();
             _fileService = new ArchivoController();
             _pythonRunnerService = new InterpretePythonController();
             GuardarCommand = new AtajoTeclado(Guardar);
@@ -196,10 +199,17 @@ namespace StudentIDE.ViewModels
             }
         }
 
-        //Lista de tareas
-        // public ObservableCollection<Tarea> Tareas{
-        // get;
-        // set; } = new();
+        //Lista de tareas ───────────────────────
+        public async Task CargarTareasAsync()
+        {
+            var tareas = await _taskService.ObtenerTareasAsync();
+            Tareas.Clear();
+
+            foreach (var tarea in tareas)
+            {
+                Tareas.Add(tarea);
+            }
+        }
 
         // ── INotifyPropertyChanged ──────────────────────────────────────
         public event PropertyChangedEventHandler? PropertyChanged;
